@@ -1,6 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const Lifx = require('../plugins/lifx')
+const Lifx = require('../services/lifx')
 
 class Server {
   start() {
