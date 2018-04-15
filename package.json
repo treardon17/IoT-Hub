@@ -1,0 +1,28 @@
+{
+  "name": "iot-hub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://treardon17@github.com/treardon17/IoT-Hub.git"
+  },
+  "author": "Tyler Reardon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/treardon17/IoT-Hub/issues"
+  },
+  "homepage": "https://github.com/treardon17/IoT-Hub#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "debug": "^3.1.0",
+    "express": "^4.16.3",
+    "node-lifx": "^0.8.0",
+    "socket.io": "^2.1.0",
+    "socket.io-client": "^2.1.0"
+  }
+}
