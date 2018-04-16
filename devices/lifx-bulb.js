@@ -8,6 +8,17 @@ class LifxBulb extends Device {
     this.defaultTransition = 2000
   }
 
+  get actions() {
+    return {
+      power: {
+        desc: "Power on/off lights"
+      },
+      color: {
+        desc: "Change color of lights"
+      }
+    }
+  }
+
   power({ duration, on = true } = {}) {
     return new Promise((resolve, reject) => {
       if (this.bulb) {

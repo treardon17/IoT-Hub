@@ -6,6 +6,11 @@ class Device {
     this.ip = ip
     this.type = type || Device.generic
   }
+
+  get actions() {
+    debug('"actions" must be implemented by subclass --> return an object with keys matching the name of the function you wish to call. Include "desc" as a child of the object, describing what the function does.')
+    return {}
+  }
 }
 
 Device.types = {}

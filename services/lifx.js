@@ -3,7 +3,7 @@ const LifxBulb = require('../devices/lifx-bulb')
 const LifxClient = require('node-lifx').Client
 const debug = require('debug')('LifxService')
 
-class LifxPlugin extends Service {
+class LifxService extends Service {
   constructor() {
     super()
     this.lights = {}
@@ -12,10 +12,9 @@ class LifxPlugin extends Service {
     this.setupListeners()
     this.client.init()
 
-    // setTimeout(() => {
-    //   // console.log(this.devices)
-    //   this.performActionAll({ action: 'power', params: { on: false } })
-    // }, 4000)
+    setTimeout(() => {
+      this.powerDevices({ on: true })
+    }, 4000)
   }
 
   // GETTERS ------------
@@ -57,25 +56,25 @@ class LifxPlugin extends Service {
     }
   }
 
-  powerAll({ duration, on = true, stagger = 0 } = {}) {
-    return this.performActionAll({
+  powerDevices({ duration, on = true, stagger = 0 } = {}) {
+    return this.performAction({
       duration,
       stagger,
       action: 'power',
       stagger, 
       params: { on }
-    })
+    }).catch(error => { debug(error) })
   }
 
-  colorAll({ id, duration, stagger, red, green, blue } = {}) {
-    return this.performActionAll({
+  colorDevices({ id, duration, stagger, red, green, blue } = {}) {
+    return this.performAction({
       duration,
       stagger,
       action: 'color',
       stagger,
       params: { red, green, blue }
-    })
+    }).catch(error => { debug(error) })
   }
 }
 
-module.exports = LifxPlugin
+module.exports = LifxService
