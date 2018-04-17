@@ -19,6 +19,21 @@ class LifxBulb extends Device {
     }
   }
 
+  // HELPER FUNCTIONS
+  maxMin({ max, min, name, value }) {
+    let newVal = null
+    if (value < min) {
+      newVal = min
+      debug(`Cannot have a ${name} less than ${value}. Setting to ${value}.`)
+    } else if (value > max) {
+      newVal = max
+      debug(`Cannot have a ${name} greater than ${value}. Setting to ${value}.`)
+    } else {
+      newVal = value
+    }
+    return newVal
+  }
+
   power({ duration, on = true } = {}) {
     return new Promise((resolve, reject) => {
       if (this.bulb) {
@@ -35,7 +50,7 @@ class LifxBulb extends Device {
     })
   }
 
-  color({ duration, red = 255, green = 255, blue = 255 } = {}) {
+  colorRGB({ duration, red = 255, green = 255, blue = 255 } = {}) {
     return new Promise((resolve, reject) => {
       if (this.bulb) {
         debug('Changing color', light.name, this.id, this.ip)
@@ -43,6 +58,18 @@ class LifxBulb extends Device {
       } else {
         reject({ error: `Light ${id} does not exist` })
       }
+    })
+  }
+
+  color({hue, saturation, brightness, kelvin, duration, callback}) {
+    return new Promise((resolve) => {
+      this.bulb.getState((state) => {
+        hue = hue ? self.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.hue
+        saturation = saturation ? self.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.saturation
+        brightness = brightness ? self.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.brightness
+        kelvin = kelvin ? self.maxMin({ min: 2500, max: 9000, name: 'kelvin', value: kelvin }) : state.kelvin
+        light.color(hue, saturation, brightness, kelvin, duration || this.defaultTransition, resolve)
+      })
     })
   }
 }

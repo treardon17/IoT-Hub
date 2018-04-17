@@ -16,5 +16,6 @@ class Device {
 Device.types = {}
 Device.types.generic = 'generic'
 Device.types.light = 'light'
+Device.types.tv = 'tv'
 
 module.exports = Device
