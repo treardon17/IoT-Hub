@@ -5,9 +5,15 @@ const wol = require('wake_on_lan')
 const axios = require('axios')
 
 class RokuTV extends Device {
-  constructor({ id, name, ip }) {
-    super({ type: Device.types.tv })
+  constructor({ id, name, ip, mac }) {
+    super({ id, name, ip, type: Device.types.tv })
+    this.mac = (mac || '').toUpperCase()
+    this.port = 8060
     this.power({ on: false })
+  }
+
+  get baseURL() {
+    return `http://${this.ip}:${this.port}`
   }
 
   get actions() {
@@ -20,7 +26,8 @@ class RokuTV extends Device {
 
   wakeup() {
     return new Promise((resolve, reject) => {
-      wol.wake('1c:1e:e3:df:12:e6'.toUpperCase(), (error) => {
+      console.log(this.mac)
+      wol.wake(this.mac, (error) => {
         if (error) {
           debug(error)
           reject(error)
@@ -31,7 +38,7 @@ class RokuTV extends Device {
 
   powerKey() {
     return new Promise((resolve, reject) => {
-      axios.post('http://192.168.0.198:8060/keypress/power').then(response => {
+      axios.post(`${this.baseURL}/keypress/power`).then(response => {
         resolve(response)
       }).catch(err => {
         debug('ERROR', err)
@@ -52,9 +59,9 @@ class RokuTV extends Device {
           this.powerKey()
         }
       }).catch(error => {
+        console.log('error', error)
         // The TV is off, so we need to wake it up
         if (error.timeout && on) {
-          console.log('waking up')
           this.wakeup()
         }
       })
@@ -69,7 +76,7 @@ class RokuTV extends Device {
         source.cancel()
         reject({ error: 'Request timed out.', timeout: true })
       }, 3000)
-      axios.get('http://192.168.0.198:8060/query/device-info', { cancelToken: source.token }).then((response) => {
+      axios.get(`${this.baseURL}/query/device-info`, { cancelToken: source.token }).then((response) => {
         try {
           const info = parser.toJson(response.data)
           const obj = JSON.parse(info)
@@ -82,4 +89,4 @@ class RokuTV extends Device {
   }
 }
 
-new RokuTV({ id: 'roku', name: 'roku', ip: '192.168.0.198' })
+new RokuTV({ id: 'roku', name: 'roku', ip: '192.168.0.198', mac: '1c:1e:e3:df:12:e6' })
