@@ -1,3 +1,5 @@
-const server = require('./core/server')
+// const server = require('./core/server')
 
-server.start()
+// server.start()
+const RokuService = require('./services/roku')
+const roku = new RokuService()
