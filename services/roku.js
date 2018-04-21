@@ -7,7 +7,9 @@ class RokuService extends Service {
   constructor() {
     super()
     this.rokuDevices = {}
-    this.discoverDevices()
+    this.discoverDevices().then(() => {
+      console.log('roku devices', this.rokuDevices)
+    })
   }
 
   get devices() {
@@ -18,11 +20,18 @@ class RokuService extends Service {
   }
 
   discoverDevices() {
-    Util.NetworkUtil.getIPsOnNetworkOnPort(8060).then((ips) => {
-      ips.forEach((ip, index) => {
-        const id = Util.IDUtil.guid()
-        this.rokuDevices[id] = new RokuTV({ id, ip, name: `Roku-${index}` })
-      })
+    return new Promise((resolve, reject) => {
+      try {
+        Util.NetworkUtil.getIPsOnNetworkOnPort(8060).then(ips => {
+          ips.forEach((ip, index) => {
+            const id = Util.IDUtil.guid()
+            this.rokuDevices[id] = new RokuTV({ id, ip, name: `Roku-${index}` })
+          })
+          resolve()
+        })
+      } catch (error) {
+        reject(error)
+      }   
     })
   }
 }

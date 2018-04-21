@@ -1,5 +1,5 @@
 const os = require('os')
-const arp = require('arp-a')
+const ping = require('ping')
 const portscanner = require('portscanner')
 
 class NetworkUtil {
@@ -11,6 +11,13 @@ class NetworkUtil {
       }
     }
     return this._ip
+  }
+
+  get deviceSubnet() {
+    const ip = this.deviceIP
+    const ipArray = ip.split('.')
+    ipArray.splice(-1,1)
+    return ipArray.join('.')
   }
 
   localIPAddresses() {
@@ -29,22 +36,36 @@ class NetworkUtil {
   }
 
   getIPsOnNetworkOnPort(port) {
-    return new Promise((resolve) => {
-      const ips = this.getIPsOnNetwork()
-      this.ipsOnPort(port, ips).then((ips) => {
-        resolve(ips)
-      })
+    return new Promise((resolve, reject) => {
+      this.getIPsOnNetwork().then(ips => {
+        this.ipsOnPort(port, ips).then((ips) => {
+          resolve(ips)
+        })
+      }).catch(error => reject(error))
     })
   }
 
   getIPsOnNetwork() {
-    const ips = []
-    arp.table(function (err, entry) {
-      if (!!err) return console.log('arp: ' + err.message)
-      if (!entry) return
-      ips.push(entry.ip)
+    return new Promise((resolve, reject) => {
+      const ips = []
+      const maxIP = 254
+      let resolveCount = 0
+      const checkResolve = () => {
+        resolveCount += 1
+        if (resolveCount >= maxIP) {
+          resolve(ips)
+        }
+      }
+      for (let index = 1; index < maxIP + 1; index++) {
+        const ipAddr = `${this.deviceSubnet}.${index}`
+        ping.sys.probe(ipAddr, (isAlive) => {
+          if (isAlive) {
+            ips.push(ipAddr)
+          }
+          checkResolve()
+        })
+      }
     })
-    return ips
   }
 
   ipOnPort(port, ip) {
