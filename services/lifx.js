@@ -5,7 +5,7 @@ const debug = require('debug')('LifxService')
 
 class LifxService extends Service {
   constructor() {
-    super()
+    super({ name: 'lifx' })
     this.lights = {}
     this.defaultTransition = 2000
     this.client = new LifxClient()
@@ -34,6 +34,7 @@ class LifxService extends Service {
       if (!error) {
         let bulb = new LifxBulb({ id: light.id, name: label, bulb: light })
         this.lights[light.id] = bulb
+        this.saveDevices()
         debug('Added light:', label, light.id, light.address)
       } else {
         debug('Error adding light --> could not fetch label')

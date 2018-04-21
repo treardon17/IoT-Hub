@@ -5,10 +5,10 @@ const debug = require('debug')('RokuService')
 
 class RokuService extends Service {
   constructor() {
-    super()
+    super({ name: 'roku' })
     this.rokuDevices = {}
     this.discoverDevices().then(() => {
-      console.log('roku devices', this.rokuDevices)
+      this.saveDevices()
     })
   }
 

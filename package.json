@@ -24,6 +24,7 @@
     "evilscan": "^1.6.1",
     "express": "^4.16.3",
     "fs-extra": "^5.0.0",
+    "is-json": "^2.0.1",
     "libnmap": "^0.4.11",
     "mkdirp": "^0.5.1",
     "node-lifx": "^0.8.0",

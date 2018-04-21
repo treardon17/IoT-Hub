@@ -1,5 +1,6 @@
 const path = require('path')
 const mkdirp = require('mkdirp')
+const isJSON = require('is-json')
 const fs = require('fs-extra')
 
 class FileIO {
@@ -19,13 +20,13 @@ class FileIO {
     })
   }
 
-  writeFile({ filePath, contents }) {
-    let writeData = contents
+  writeFile({ filePath, data }) {
+    let writeData = data
     return new Promise((resolve, reject) => {
       this.createFilePath({ filePath })
         .then(() => {
           if (typeof writeData === 'object') {
-            writeData = JSON.stringify(contents)
+            writeData = JSON.stringify(data, null, 2)
           }
           fs.writeFile(filePath, writeData, (err) => {
             err ? reject(err) : resolve()
@@ -33,6 +34,29 @@ class FileIO {
         })
         .catch(reject)
     })
+  }
+
+  saveToDataFile({ fileName = 'data', key, data }) {
+    return new Promise((resolve, reject) => {
+      const filePath = path.resolve(__dirname, `../data/${fileName}.json`)
+      this.readFile({ filePath })
+        .then((fileData) => {
+          const newData = isJSON(fileData) ? JSON.parse(fileData) : {}
+          key ? newData[key] = data : newData = data
+          this.writeFile({ filePath, data: newData })
+            .then(resolve)
+            .catch(reject)
+        }).catch(() => {
+          const newData = key ? { [key]: data } : data
+          this.writeFile({ filePath, data: newData })
+            .then(resolve)
+            .catch(reject)
+        })
+    })
+  }
+
+  readDataFile({ fileName = 'data' }) {
+    // return new Promise()
   }
 }
 

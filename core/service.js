@@ -1,5 +1,13 @@
 const debug = require('debug')('Service')
+const Util = require('../util')
+
 class Service {
+  constructor({ name }) {
+    this.name = name
+    if (!name) {
+      console.error('Service must have a name!')
+    }
+  }
 
   // GETTERS --------------
   get devices() {
@@ -36,6 +44,11 @@ class Service {
         }
       })
     })
+  }
+
+  // DATA
+  saveDevices() {
+    Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: this.devices })
   }
 }
 
