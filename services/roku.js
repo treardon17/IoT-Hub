@@ -22,9 +22,9 @@ class RokuService extends Service {
   discoverDevices() {
     return new Promise((resolve, reject) => {
       try {
-        Util.NetworkUtil.getIPsOnNetworkOnPort(8060).then(ips => {
+        Util.Network.getIPsOnNetworkOnPort(8060).then(ips => {
           ips.forEach((ip, index) => {
-            const id = Util.IDUtil.guid()
+            const id = Util.ID.guid()
             this.rokuDevices[id] = new RokuTV({ id, ip, name: `Roku-${index}` })
           })
           resolve()

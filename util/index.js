@@ -1,7 +1,9 @@
-const IDUtil = require('./id')
-const NetworkUtil = require('./network')
+const ID = require('./id')
+const Network = require('./network')
+const FileIO = require('./file-io')
 
 module.exports = {
-  IDUtil,
-  NetworkUtil
+  ID,
+  Network,
+  FileIO
 }
