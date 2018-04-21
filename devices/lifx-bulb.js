@@ -10,12 +10,8 @@ class LifxBulb extends Device {
 
   get actions() {
     return {
-      power: {
-        desc: "Power on/off lights"
-      },
-      color: {
-        desc: "Change color of lights"
-      }
+      power: { desc: "Power on/off lights" },
+      color: { desc: "Change color of lights" }
     }
   }
 

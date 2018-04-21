@@ -11,10 +11,6 @@ class LifxService extends Service {
     this.client = new LifxClient()
     this.setupListeners()
     this.client.init()
-
-    setTimeout(() => {
-      this.powerDevices({ on: true })
-    }, 4000)
   }
 
   // GETTERS ------------

@@ -21,9 +21,7 @@ class RokuTV extends Device {
 
   get actions() {
     return {
-      power: {
-        desc: 'Toggle power of TV'
-      }
+      power: { desc: 'Toggle power of TV' }
     }
   }
 
