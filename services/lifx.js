@@ -20,8 +20,7 @@ class LifxService extends Service {
     const cachedDeviceCount = this._devices ? this._devices.length : 0
     if (currentDeviceCount > cachedDeviceCount || !this._devices) {
       this._devices = deviceKeys.map(key => {
-        const { bulb, ...rest } = this.lights[key]
-        return { ...rest }
+        return this.lights[key]
       })
     }
     return this._devices

@@ -6,6 +6,8 @@ class Service {
     this.name = name
     this.saveInProgress = false
     this.saveQueue = []
+
+    // VALIDATION
     if (!name) {
       console.error('Service must have a name!')
     }
@@ -15,6 +17,16 @@ class Service {
   get devices() {
     debug('"devices" not yet implemented in subclass')
     return []
+  }
+
+  /**
+   * Gets the minimal amount of info for each device
+   */
+  get simpleDevices() {
+    return this.devices.map(device => {
+      const { id, name, ip, type, mac } = device
+      return { id, name, ip, type, mac }
+    })
   }
 
   // ACTIONS --------------
@@ -53,13 +65,6 @@ class Service {
   }
 
   // DATA
-  getDevicesWithoutParentReference() {
-    return this.devices.map(device => {
-      const { parentService, ...rest } = device
-      return { ...rest }
-    })
-  }
-
   processSaveQueue() {
     if (!this.saveInProgress && this.saveQueue.length > 0) {
       this.saveInProgress = true
@@ -74,7 +79,7 @@ class Service {
     return new Promise((resolve, reject) => {
       const saveProcess = (callback) => {
         if (this.name) {
-          Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: this.getDevicesWithoutParentReference() })
+          Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: this.simpleDevices })
             .then(() => {
               callback()
               resolve()
