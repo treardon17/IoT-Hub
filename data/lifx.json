@@ -1,0 +1,18 @@
+{
+  "devices": [
+    {
+      "id": "d073d5127a0f",
+      "name": "Light1",
+      "ip": "192.168.0.143",
+      "type": "light",
+      "defaultTransition": 2000
+    },
+    {
+      "id": "d073d5130d67",
+      "name": "Light2",
+      "ip": "192.168.0.135",
+      "type": "light",
+      "defaultTransition": 2000
+    }
+  ]
+}

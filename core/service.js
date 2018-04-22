@@ -4,6 +4,8 @@ const Util = require('../util')
 class Service {
   constructor({ name }) {
     this.name = name
+    this.saveInProgress = false
+    this.saveQueue = []
     if (!name) {
       console.error('Service must have a name!')
     }
@@ -46,9 +48,63 @@ class Service {
     })
   }
 
+  discoverDevices() {
+    debug('`discoverDevices` must be implemented in the service subclass.')
+  }
+
   // DATA
+  getDevicesWithoutParentReference() {
+    return this.devices.map(device => {
+      const { parentService, ...rest } = device
+      return { ...rest }
+    })
+  }
+
+  processSaveQueue() {
+    if (!this.saveInProgress && this.saveQueue.length > 0) {
+      this.saveInProgress = true
+      this.saveQueue.shift()(() => {
+        this.saveInProgress = false
+        this.processSaveQueue()
+      })
+    }
+  }
+
   saveDevices() {
-    Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: this.devices })
+    return new Promise((resolve, reject) => {
+      const saveProcess = (callback) => {
+        if (this.name) {
+          Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: this.getDevicesWithoutParentReference() })
+            .then(() => {
+              callback()
+              resolve()
+            })
+            .catch(() => {
+              callback()
+              reject()
+            })
+        } else {
+          callback()
+          reject('Service needs name')
+        }
+      }
+      this.saveQueue.push(saveProcess)
+      this.processSaveQueue()
+    })
+  }
+
+  readData() {
+    return new Promise((resolve, reject) => {
+      if (this.name) {
+        Util.FileIO.readDataFile({ fileName: this.name })
+          .then(resolve)
+          .catch(() => {
+            resolve({})
+          })
+      } else {
+        reject('Service needs name')
+      }
+    })
   }
 }
 

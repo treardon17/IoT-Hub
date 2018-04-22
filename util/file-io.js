@@ -1,9 +1,18 @@
 const path = require('path')
 const mkdirp = require('mkdirp')
 const isJSON = require('is-json')
+const circularJSON = require('circular-json')
 const fs = require('fs-extra')
 
 class FileIO {
+  getFilesInDirectory({ filePath }) {
+    return new Promise((resolve, reject) => {
+      fs.readdir(testFolder, (err, files) => {
+        err ? reject(err) : resolve(files)
+      })
+    })
+  }
+
   readFile({ filePath }) {
     return new Promise((resolve, reject) => {
       fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
@@ -26,7 +35,7 @@ class FileIO {
       this.createFilePath({ filePath })
         .then(() => {
           if (typeof writeData === 'object') {
-            writeData = JSON.stringify(data, null, 2)
+            writeData = circularJSON.stringify(data, null, 2)
           }
           fs.writeFile(filePath, writeData, (err) => {
             err ? reject(err) : resolve()
@@ -41,7 +50,7 @@ class FileIO {
       const filePath = path.resolve(__dirname, `../data/${fileName}.json`)
       this.readFile({ filePath })
         .then((fileData) => {
-          const newData = isJSON(fileData) ? JSON.parse(fileData) : {}
+          const newData = isJSON(fileData) ? circularJSON.parse(fileData) : {}
           key ? newData[key] = data : newData = data
           this.writeFile({ filePath, data: newData })
             .then(resolve)
@@ -56,7 +65,19 @@ class FileIO {
   }
 
   readDataFile({ fileName = 'data' }) {
-    // return new Promise()
+    return new Promise((resolve, reject) => {
+      const filePath = path.resolve(__dirname, `../data/${fileName}.json`)
+      this.readFile({ filePath })
+        .then((data) => {
+          if (isJSON(data)) {
+            const dataObj = circularJSON.parse(data)
+            resolve(dataObj)
+          } else {
+            reject('Invalid JSON in file', filePath)
+          }
+        })
+        .catch(reject)
+    })
   }
 }
 

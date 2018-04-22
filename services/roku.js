@@ -10,6 +10,9 @@ class RokuService extends Service {
     this.discoverDevices().then(() => {
       this.saveDevices()
     })
+    // this.readData().then(data => {
+    //   console.log(data)
+    // })
   }
 
   get devices() {
@@ -25,7 +28,9 @@ class RokuService extends Service {
         Util.Network.getIPsOnNetworkOnPort(8060).then(ips => {
           ips.forEach((ip, index) => {
             const id = Util.ID.guid()
-            this.rokuDevices[id] = new RokuTV({ id, ip, name: `Roku-${index}` })
+            const tv = new RokuTV({ id, ip, name: `Roku-${index}` })
+            tv.parentService = this
+            this.rokuDevices[id] = tv
           })
           resolve()
         })
@@ -33,6 +38,10 @@ class RokuService extends Service {
         reject(error)
       }   
     })
+  }
+
+  onDeviceExtraInfo() {
+    this.saveDevices()
   }
 }
 

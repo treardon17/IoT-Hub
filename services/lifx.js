@@ -9,7 +9,7 @@ class LifxService extends Service {
     this.lights = {}
     this.defaultTransition = 2000
     this.client = new LifxClient()
-    this.setupListeners()
+    this.discoverDevices()
     this.client.init()
   }
 
@@ -19,13 +19,16 @@ class LifxService extends Service {
     const currentDeviceCount = deviceKeys.length
     const cachedDeviceCount = this._devices ? this._devices.length : 0
     if (currentDeviceCount > cachedDeviceCount || !this._devices) {
-      this._devices = deviceKeys.map(key => this.lights[key])
+      this._devices = deviceKeys.map(key => {
+        const { bulb, ...rest } = this.lights[key]
+        return { ...rest }
+      })
     }
     return this._devices
   }
 
   // LISTENERS ------------
-  setupListeners() {
+  discoverDevices() {
     this.client.on('light-new', this.onNewLight.bind(this))
   }
 
@@ -33,6 +36,7 @@ class LifxService extends Service {
     light.getLabel((error, label) => {
       if (!error) {
         let bulb = new LifxBulb({ id: light.id, name: label, bulb: light })
+        bulb.parentService = this
         this.lights[light.id] = bulb
         this.saveDevices()
         debug('Added light:', label, light.id, light.address)

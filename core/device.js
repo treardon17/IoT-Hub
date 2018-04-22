@@ -5,6 +5,7 @@ class Device {
     this.name = name
     this.ip = ip
     this.type = type || Device.generic
+    this.parentService = null
   }
 
   get actions() {

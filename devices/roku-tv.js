@@ -9,10 +9,7 @@ class RokuTV extends Device {
     super({ id, name, ip, type: Device.types.tv })
     this.mac = (mac || '').toUpperCase()
     this.port = 8060
-
-    if (this.mac === '') {
-      this.setMac()
-    }
+    this.setExtraInfo()
   }
 
   get baseURL() {
@@ -25,16 +22,16 @@ class RokuTV extends Device {
     }
   }
 
-  setMac(mac) {
-    if (mac) {
-      this.mac = (mac || '').toUpperCase()
-    } else {
-      this.info().then((info) => {
-        this.mac = (info['device-info']['wifi-mac'] || '').toUpperCase()
-      }).catch((error) => {
-        debug(error)
-      })
-    }
+  setExtraInfo() {
+    this.info().then(info => {
+      this.mac = (info['device-info']['wifi-mac'] || '').toUpperCase()
+      this.id = (info['device-info']['device-id'] || '').toUpperCase()
+      if (this.parentService && typeof this.parentService.onDeviceExtraInfo === 'function') {
+        this.parentService.onDeviceExtraInfo()
+      }
+    }).catch(error => {
+      debug(error)
+    })
   }
 
   wakeup() {
@@ -101,5 +98,4 @@ class RokuTV extends Device {
   }
 }
 
-// new RokuTV({ id: 'roku', name: 'roku', ip: '192.168.0.198', mac: '1c:1e:e3:df:12:e6' })
 module.exports = RokuTV
