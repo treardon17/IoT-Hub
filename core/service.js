@@ -78,16 +78,25 @@ class Service {
   saveDevices() {
     return new Promise((resolve, reject) => {
       const saveProcess = (callback) => {
+        const resolver = () => {
+          callback()
+          resolve()
+        }
         if (this.name) {
-          Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: this.simpleDevices })
-            .then(() => {
-              callback()
-              resolve()
-            })
-            .catch(() => {
-              callback()
-              reject()
-            })
+          this.readData().then((data) => {
+            let devices = data.devices || []
+            devices = [...devices, ...this.simpleDevices]
+            devices = Util.Array.removeDuplicates({ array: devices, prop: 'id' })
+            Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: devices })
+              .then(resolver)
+              .catch(() => {
+                callback()
+                reject(`Could not save device to file ${this.name}`)
+              })
+          }).catch(() => {
+            callback()
+            reject('Had trouble reading from file while saving devices')
+          })
         } else {
           callback()
           reject('Service needs name')
@@ -104,7 +113,11 @@ class Service {
         Util.FileIO.readDataFile({ fileName: this.name })
           .then(resolve)
           .catch(() => {
-            resolve({})
+            debug(`File does not exist, so creating new file: ${this.name}.json`)
+            let data = {}
+            Util.FileIO.saveToDataFile({ fileName: this.name, data }).then(() => {
+              resolve(data)
+            })
           })
       } else {
         reject('Service needs name')

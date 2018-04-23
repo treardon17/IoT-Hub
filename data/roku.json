@@ -1,3 +1,7 @@
 {
-  "devices": []
+  "devices": [
+    {
+      "id": "something"
+    }
+  ]
 }
