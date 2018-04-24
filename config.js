@@ -1,6 +1,6 @@
 module.exports = {
   services: [
-    { name: 'lifx' },
-    { name: 'roku' }
+    { name: 'lifx', filename: 'lifx' },
+    { name: 'roku', filename: 'roku' }
   ]
 }

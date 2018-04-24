@@ -4,8 +4,8 @@ const Util = require('../util')
 class Service {
   constructor({ name, deviceClass }) {
     // VALIDATION
-    if (!name) { console.error('Service must have a "name" attribute!') }
-    if (!deviceClass) { console.error('Service must have a "deviceClass" attribute!') }
+    if (!name) { debug('Service must have a "name" attribute!') }
+    if (!deviceClass) { debug('Service must have a "deviceClass" attribute!') }
 
     // REQUIRED
     this.name = name
@@ -15,6 +15,9 @@ class Service {
     // HELPERS
     this.saveInProgress = false
     this.saveQueue = []
+
+    // INITIALIZATION
+    this.initDevices()
   }
 
   // INIT -----------------

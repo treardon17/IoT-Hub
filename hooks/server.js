@@ -1,7 +1,9 @@
+const debug = require('debug')('Hook')
 const express = require('express')
 const bodyParser = require('body-parser')
+const Hook = require('../core/hook')
 
-class Server {
+class Server extends Hook {
   start() {
     this.port = 6875
     this.app = express()
@@ -19,4 +21,4 @@ class Server {
   }
 }
 
-module.exports = new Server()
+module.exports = Server
