@@ -5,22 +5,18 @@ const debug = require('debug')('LifxService')
 
 class LifxService extends Service {
   constructor() {
-    super({ name: 'lifx' })
-    this.lights = {}
+    super({ name: 'lifx', deviceClass: LifxBulb })
     this.defaultTransition = 2000
-    this.client = new LifxClient()
-    this.discoverDevices()
-    this.client.init()
   }
 
   // GETTERS ------------
   get devices() {
-    const deviceKeys = Object.keys(this.lights)
+    const deviceKeys = Object.keys(this.deviceMap)
     const currentDeviceCount = deviceKeys.length
     const cachedDeviceCount = this._devices ? this._devices.length : 0
     if (currentDeviceCount > cachedDeviceCount || !this._devices) {
       this._devices = deviceKeys.map(key => {
-        return this.lights[key]
+        return this.deviceMap[key]
       })
     }
     return this._devices
@@ -28,7 +24,13 @@ class LifxService extends Service {
 
   // LISTENERS ------------
   discoverDevices() {
-    this.client.on('light-new', this.onNewLight.bind(this))
+    return new Promise((resolve, reject) => {
+      this.client = new LifxClient()
+      this.client.on('light-new', this.onNewLight.bind(this))
+      this.client.init()
+      // Lets wait 5 seconds before we quit trying to discover devices
+      setTimeout(() => { resolve() }, 5000)
+    })
   }
 
   onNewLight(light) {
@@ -36,7 +38,7 @@ class LifxService extends Service {
       if (!error) {
         let bulb = new LifxBulb({ id: light.id, name: label, bulb: light })
         bulb.parentService = this
-        this.lights[light.id] = bulb
+        this.deviceMap[light.id] = bulb
         this.saveDevices()
         debug('Added light:', label, light.id, light.address)
       } else {
@@ -47,7 +49,7 @@ class LifxService extends Service {
 
   // HELPERS ------------
   getLight(id) {
-    const light = this.lights[id]
+    const light = this.deviceMap[id]
     if (light) {
       return light
     } else {

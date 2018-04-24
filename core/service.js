@@ -2,15 +2,44 @@ const debug = require('debug')('Service')
 const Util = require('../util')
 
 class Service {
-  constructor({ name }) {
+  constructor({ name, deviceClass }) {
+    // VALIDATION
+    if (!name) { console.error('Service must have a "name" attribute!') }
+    if (!deviceClass) { console.error('Service must have a "deviceClass" attribute!') }
+
+    // REQUIRED
     this.name = name
+    this.deviceClass = deviceClass
+    this.deviceMap = {}
+
+    // HELPERS
     this.saveInProgress = false
     this.saveQueue = []
+  }
 
-    // VALIDATION
-    if (!name) {
-      console.error('Service must have a name!')
-    }
+  // INIT -----------------
+  initDevices() {
+    this.initExistingDevices()
+      .then(this.discoverDevices.bind(this))
+      .then(this.saveDevices.bind(this))
+  }
+
+  initExistingDevices() {
+    return new Promise((resolve, reject) => {
+      if (!this.deviceClass) {
+        const errMsg = 'Service missing "deviceClass"'
+        debug(errMsg)
+        reject(errMsg)
+      } else {
+        this.readData().then(data => {
+          data.devices.forEach((device) => {
+            debug('Creating device from existing data: ', device)
+            this.deviceMap[device.id] = new this.deviceClass(device)
+          })
+          resolve()
+        }).catch(reject)
+      }
+    })
   }
 
   // GETTERS --------------
