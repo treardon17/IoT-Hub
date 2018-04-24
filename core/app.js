@@ -5,13 +5,14 @@ const Config = require('../config')
 class App {
   constructor() {
     this.services = {}
-    this.start()
+    this.initialize()
 
     setTimeout(() => {
       console.log(this.devices)
     }, 3000)
   }
 
+  // GETTERS --------------------
   get devices() {
     let devices = []
     Object.keys(this.services).forEach((serviceName) => {
@@ -21,7 +22,16 @@ class App {
     return devices
   }
 
-  start() {
+  getDevicesOfType(type) {
+    return this.devices.map(device => {
+      if (device.type === type) {
+        return device
+      }
+    })
+  }
+
+  // INITIALIZATION ---------------
+  initialize() {
     this.initServices()
   }
 

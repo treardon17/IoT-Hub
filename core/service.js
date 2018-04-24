@@ -11,6 +11,7 @@ class Service {
     this.name = name
     this.deviceClass = deviceClass
     this.deviceMap = {}
+    // END REQUIRED
 
     // HELPERS
     this.saveInProgress = false
@@ -45,11 +46,23 @@ class Service {
     })
   }
 
-  // GETTERS --------------
+  // ---------------------------
+  // MUST BE IMPLEMENTED BY SUBCLASS
+  // ---------------------------
+
+  // GETTERS -------------------
   get devices() {
     debug('"devices" not yet implemented in subclass')
     return []
   }
+
+  discoverDevices() {
+    debug('`discoverDevices` must be implemented in the service subclass.')
+  }
+
+  // ---------------------------
+  // END IMPLEMENTED BY SUBCLASS
+  // ---------------------------
 
   /**
    * Gets the minimal amount of info for each device
@@ -90,10 +103,6 @@ class Service {
         }
       })
     })
-  }
-
-  discoverDevices() {
-    debug('`discoverDevices` must be implemented in the service subclass.')
   }
 
   // DATA
