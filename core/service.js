@@ -21,6 +21,24 @@ class Service {
     this.initDevices()
   }
 
+  // ---------------------------
+  // MUST BE IMPLEMENTED BY SUBCLASS
+  // ---------------------------
+
+  // GETTERS -------------------
+  get devices() {
+    debug('"devices" not yet implemented in subclass')
+    return []
+  }
+
+  discoverDevices() {
+    debug('`discoverDevices` must be implemented in the service subclass.')
+  }
+
+  // ---------------------------
+  // END IMPLEMENTED BY SUBCLASS
+  // ---------------------------
+
   // INIT -----------------
   initDevices() {
     this.initExistingDevices()
@@ -45,24 +63,6 @@ class Service {
       }
     })
   }
-
-  // ---------------------------
-  // MUST BE IMPLEMENTED BY SUBCLASS
-  // ---------------------------
-
-  // GETTERS -------------------
-  get devices() {
-    debug('"devices" not yet implemented in subclass')
-    return []
-  }
-
-  discoverDevices() {
-    debug('`discoverDevices` must be implemented in the service subclass.')
-  }
-
-  // ---------------------------
-  // END IMPLEMENTED BY SUBCLASS
-  // ---------------------------
 
   /**
    * Gets the minimal amount of info for each device
