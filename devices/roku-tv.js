@@ -82,9 +82,8 @@ class RokuTV extends Device {
     return new Promise((resolve, reject) => {
       const source = axios.CancelToken.source()
       const timeout = setTimeout(() => {
-        debug('Device is not awake. Cancelling request.')
         source.cancel()
-        reject({ error: 'Request timed out.', timeout: true })
+        reject({ error: 'Request timed out.', timeout: true, reason: 'Device not awake.' })
       }, 3000)
       axios.get(`${this.baseURL}/query/device-info`, { cancelToken: source.token }).then((response) => {
         try {

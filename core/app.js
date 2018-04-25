@@ -34,7 +34,7 @@ class App {
   }
 
   initializeItem(key) {
-    if (Config && Config[key]) {
+    if (Config && Config[key] && Array.isArray(Config[key])) {
       this[key] = {}
       Config[key].forEach((item) => {
         if (!this[key][item]) {
