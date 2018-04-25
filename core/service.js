@@ -143,7 +143,7 @@ class Service {
           this.readData().then((data) => {
             let devices = (override || !data.devices) ? data.devices : []
             devices = [...devices, ...this.simpleDevices]
-            devices = Util.Array.removeDuplicates({ array: devices, prop: ['id', 'ip'] })
+            devices = Util.Array.removeDuplicates({ array: devices, prop: ['ip', 'id'] })
             this.deviceMap = this.deviceArrayToObject({ array: devices })
             Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: devices })
               .then(resolver)

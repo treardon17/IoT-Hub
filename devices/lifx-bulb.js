@@ -2,8 +2,8 @@ const debug = require('debug')('Device:LifxBulb')
 const Device = require('../core/device')
 
 class LifxBulb extends Device {
-  constructor({ id, name, bulb = {} }) {
-    super({ id, name, type: Device.types.light, ip: bulb.address })
+  constructor({ id, ip, name, bulb = {} }) {
+    super({ id, ip, name, type: Device.types.light })
     this.bulb = bulb
     this.defaultTransition = 2000
   }

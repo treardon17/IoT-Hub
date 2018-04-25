@@ -1,12 +1,11 @@
 class ArrayUtil {
   removeDuplicates({ array, prop }) {
-    const isArray = (typeof prop === 'Array' && prop.length > 0)
+    const isArray = (Array.isArray(prop) && prop.length > 0)
     const property = isArray ? prop.shift() : prop
-
     if (isArray) {
-      return this.removeDuplicates({ array, prop })
+      return this.removeDuplicates({ array, prop: property })
     }
-    return array.filter((obj, pos, arr) => arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos)
+    return array.filter((obj, pos, arr) => arr.map(mapObj => mapObj[property]).indexOf(obj[property]) === pos)
   }
 }
 

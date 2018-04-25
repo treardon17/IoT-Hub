@@ -1,7 +1,6 @@
 const path = require('path')
 const mkdirp = require('mkdirp')
 const isJSON = require('is-json')
-const circularJSON = require('circular-json')
 const fs = require('fs-extra')
 
 class FileIO {
@@ -35,7 +34,7 @@ class FileIO {
       this.createFilePath({ filePath })
         .then(() => {
           if (typeof writeData === 'object') {
-            writeData = circularJSON.stringify(data, null, 2)
+            writeData = JSON.stringify(data, null, 2)
           }
           fs.writeFile(filePath, writeData, (err) => {
             err ? reject(err) : resolve()
@@ -50,7 +49,7 @@ class FileIO {
       const filePath = path.resolve(__dirname, `../data/${fileName}.json`)
       this.readFile({ filePath })
         .then((fileData) => {
-          const newData = isJSON(fileData) ? circularJSON.parse(fileData) : {}
+          const newData = isJSON(fileData) ? JSON.parse(fileData) : {}
           key ? newData[key] = data : newData = data
           this.writeFile({ filePath, data: newData })
             .then(resolve)
@@ -70,7 +69,7 @@ class FileIO {
       this.readFile({ filePath })
         .then((data) => {
           if (isJSON(data)) {
-            const dataObj = circularJSON.parse(data)
+            const dataObj = JSON.parse(data)
             resolve(dataObj)
           } else {
             reject('Invalid JSON in file', filePath)
