@@ -1,14 +1,14 @@
 const Service = require('../core/service')
 const LifxBulb = require('../devices/lifx-bulb')
 const LifxClient = require('node-lifx').Client
-const debug = require('debug')('LifxService')
+const debug = require('debug')('Service:LifxService')
 
 class LifxService extends Service {
   constructor() {
     super({ name: 'lifx', deviceClass: LifxBulb })
     this.defaultTransition = 2000
   }
-  
+
   // LISTENERS ------------
   discoverDevices() {
     return new Promise((resolve, reject) => {

@@ -1,4 +1,4 @@
-const debug = require('debug')('LifxBulb')
+const debug = require('debug')('Device:LifxBulb')
 const Device = require('../core/device')
 
 class LifxBulb extends Device {

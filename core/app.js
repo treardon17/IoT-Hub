@@ -7,10 +7,6 @@ class App {
   constructor() {
     this.services = {}
     this.initialize()
-
-    setTimeout(() => {
-      console.log(this.getDevicesOfType(Device.types.tv))
-    }, 3000)
   }
 
   // GETTERS --------------------

@@ -1,7 +1,7 @@
 const Service = require('../core/service')
 const RokuTV = require('../devices/roku-tv')
 const Util = require('../util')
-const debug = require('debug')('RokuService')
+const debug = require('debug')('Service:RokuService')
 
 class RokuService extends Service {
   constructor() {

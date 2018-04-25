@@ -1,4 +1,4 @@
-const debug = require('debug')('Hook')
+const debug = require('debug')('Hook:Server')
 const express = require('express')
 const bodyParser = require('body-parser')
 const Hook = require('../core/hook')
@@ -14,7 +14,7 @@ class Server extends Hook {
     console.log('Server listening on port', this.port)
   }
 
-  setupRoutes() {
+  setupRoutes(devices) {
     // this.app.post('/lifx', (req, res) => {
     //   this.lifx.powerAll({ on: req.body.on, duration: 5000 })
     // })
