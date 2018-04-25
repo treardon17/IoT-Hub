@@ -33,23 +33,24 @@ class App {
 
   // INITIALIZATION ---------------
   initialize() {
-    this.initServices()
+    this.initializeItem('services')
+    this.initializeItem('hooks')
   }
 
-  initServices() {
-    if (Config && Config.services) {
-      Config.services.forEach((service) => {
-        if (!this.services[service]) {
-          const ServiceDef = require(`../services/${service.filename}`)
-          this.services[service.name] = new ServiceDef()
-          debug(`Initializing -- ${service.name}`)
+  initializeItem(key) {
+    if (Config && Config[key]) {
+      this[key] = {}
+      Config[key].forEach((item) => {
+        if (!this[key][item]) {
+          const ItemDefinition = require(`../${key}/${item.filename}`)
+          this[key][item.name] = new ItemDefinition()
+          debug(`Initializing -- ${item.name}`)
         } else {
-          debug(`Service "${service}" already exists`)
+          debug(`${key} "${item}" already exists`)
         }
       })
     }
   }
-
 }
 
 module.exports = App
