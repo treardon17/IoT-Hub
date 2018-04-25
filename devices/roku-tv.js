@@ -81,7 +81,7 @@ class RokuTV extends Device {
   info() {
     return new Promise((resolve, reject) => {
       const source = axios.CancelToken.source()
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         debug('Device is not awake. Cancelling request.')
         source.cancel()
         reject({ error: 'Request timed out.', timeout: true })
@@ -90,11 +90,16 @@ class RokuTV extends Device {
         try {
           const info = parser.toJson(response.data)
           const obj = JSON.parse(info)
+          clearTimeout(timeout)
           resolve(obj)
         } catch (error) {
+          clearTimeout(timeout)
           reject({ error, timeout: false })
         }
-      }).catch(error => reject({ error, timeout: false }))
+      }).catch(error => {
+        clearTimeout(timeout)
+        reject({ error, timeout: false })
+      })
     })
   }
 }

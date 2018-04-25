@@ -8,20 +8,7 @@ class LifxService extends Service {
     super({ name: 'lifx', deviceClass: LifxBulb })
     this.defaultTransition = 2000
   }
-
-  // GETTERS ------------
-  get devices() {
-    const deviceKeys = Object.keys(this.deviceMap)
-    const currentDeviceCount = deviceKeys.length
-    const cachedDeviceCount = this._devices ? this._devices.length : 0
-    if (currentDeviceCount > cachedDeviceCount || !this._devices) {
-      this._devices = deviceKeys.map(key => {
-        return this.deviceMap[key]
-      })
-    }
-    return this._devices
-  }
-
+  
   // LISTENERS ------------
   discoverDevices() {
     return new Promise((resolve, reject) => {

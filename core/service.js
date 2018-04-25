@@ -25,12 +25,6 @@ class Service {
   // MUST BE IMPLEMENTED BY SUBCLASS
   // ---------------------------
 
-  // GETTERS -------------------
-  get devices() {
-    debug('"devices" not yet implemented in subclass')
-    return []
-  }
-
   discoverDevices() {
     debug('`discoverDevices` must be implemented in the service subclass.')
   }
@@ -39,11 +33,25 @@ class Service {
   // END IMPLEMENTED BY SUBCLASS
   // ---------------------------
 
+  // GETTERS -----------------
+  get devices() {
+    const deviceKeys = Object.keys(this.deviceMap)
+    const currentDeviceCount = deviceKeys.length
+    const cachedDeviceCount = this._devices ? this._devices.length : 0
+    if (currentDeviceCount > cachedDeviceCount || !this._devices) {
+      this._devices = deviceKeys.map(key => this.deviceMap[key])
+    }
+    return this._devices
+  }
+
   // INIT -----------------
   initDevices() {
     this.initExistingDevices()
       .then(this.discoverDevices.bind(this))
       .then(this.saveDevices.bind(this))
+      .catch(() => {
+        debug('Issue initializing devices')
+      })
   }
 
   initExistingDevices() {
@@ -55,7 +63,7 @@ class Service {
       } else {
         this.readData().then(data => {
           data.devices.forEach((device) => {
-            debug('Creating device from existing data: ', device)
+            debug('Creating device from existing data -- id:', device.id)
             this.deviceMap[device.id] = new this.deviceClass(device)
           })
           resolve()
@@ -116,7 +124,15 @@ class Service {
     }
   }
 
-  saveDevices() {
+  deviceArrayToObject({ array }) {
+    const obj = {}
+    array.forEach(device => {
+      obj[device.id] = device
+    })
+    return obj
+  }
+
+  saveDevices({ override } = {}) {
     return new Promise((resolve, reject) => {
       const saveProcess = (callback) => {
         const resolver = () => {
@@ -125,9 +141,10 @@ class Service {
         }
         if (this.name) {
           this.readData().then((data) => {
-            let devices = data.devices || []
+            let devices = (override || !data.devices) ? data.devices : []
             devices = [...devices, ...this.simpleDevices]
-            devices = Util.Array.removeDuplicates({ array: devices, prop: 'id' })
+            devices = Util.Array.removeDuplicates({ array: devices, prop: ['id', 'ip'] })
+            this.deviceMap = this.deviceArrayToObject({ array: devices })
             Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: devices })
               .then(resolver)
               .catch(() => {

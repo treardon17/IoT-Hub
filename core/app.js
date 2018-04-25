@@ -1,5 +1,6 @@
 const debug = require('debug')('App')
 const Util = require('../util')
+const Device = require('../core/device')
 const Config = require('../config')
 
 class App {
@@ -8,7 +9,7 @@ class App {
     this.initialize()
 
     setTimeout(() => {
-      console.log(this.devices)
+      console.log(this.getDevicesOfType(Device.types.tv))
     }, 3000)
   }
 
@@ -23,7 +24,7 @@ class App {
   }
 
   getDevicesOfType(type) {
-    return this.devices.map(device => {
+    return this.devices.filter(device => {
       if (device.type === type) {
         return device
       }

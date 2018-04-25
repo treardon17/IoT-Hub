@@ -8,13 +8,6 @@ class RokuService extends Service {
     super({ name: 'roku', deviceClass: RokuTV })
   }
 
-  get devices() {
-    if (!this._devices || this._devices.length === 0) {
-      this._devices = Object.keys(this.deviceMap).map((device) => this.deviceMap[device])
-    }
-    return this._devices
-  }
-
   initDevices() {
     this.initExistingDevices()
       .then(this.discoverDevices.bind(this))
