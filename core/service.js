@@ -14,6 +14,7 @@ class Service {
     // END REQUIRED
 
     // HELPERS
+    this.application = null
     this.saveInProgress = false
     this.saveQueue = []
 
@@ -34,14 +35,28 @@ class Service {
   // ---------------------------
 
   // GETTERS -----------------
+   /**
+   * Gets every device this service has
+   */
   get devices() {
     const deviceKeys = Object.keys(this.deviceMap)
     const currentDeviceCount = deviceKeys.length
     const cachedDeviceCount = this._devices ? this._devices.length : 0
     if (currentDeviceCount > cachedDeviceCount || !this._devices) {
       this._devices = deviceKeys.map(key => this.deviceMap[key])
+      this.notifyParentOfDeviceChanges()
     }
     return this._devices
+  }
+
+  /**
+ * Gets the minimal amount of info for each device
+ */
+  get simpleDevices() {
+    return this.devices.map(device => {
+      const { id, name, ip, type, mac } = device
+      return { id, name, ip, type, mac }
+    })
   }
 
   // INIT -----------------
@@ -65,6 +80,7 @@ class Service {
           data.devices.forEach((device) => {
             debug('Creating device from existing data -- id:', device.id)
             this.deviceMap[device.id] = new this.deviceClass(device)
+            this.notifyParentOfDeviceChanges()
           })
           resolve()
         }).catch(reject)
@@ -72,14 +88,11 @@ class Service {
     })
   }
 
-  /**
-   * Gets the minimal amount of info for each device
-   */
-  get simpleDevices() {
-    return this.devices.map(device => {
-      const { id, name, ip, type, mac } = device
-      return { id, name, ip, type, mac }
-    })
+  // HELPERS --------------
+  notifyParentOfDeviceChanges() {
+    if (this.application && typeof this.application.onDevicesUpdate === 'function') {
+      this.application.onDevicesUpdate()
+    }
   }
 
   // ACTIONS --------------

@@ -6,17 +6,8 @@ const Config = require('../config')
 class App {
   constructor() {
     this.services = {}
+    this.devices = []
     this.initialize()
-  }
-
-  // GETTERS --------------------
-  get devices() {
-    let devices = []
-    Object.keys(this.services).forEach((serviceName) => {
-      const service = this.services[serviceName]
-      devices = [...devices, ...service.devices]
-    })
-    return devices
   }
 
   getDevicesOfType(type) {
@@ -27,10 +18,25 @@ class App {
     })
   }
 
+  // HELPERS ----------------------
+  getAllDevices() {
+    let devices = []
+    Object.keys(this.services).forEach((serviceName) => {
+      const service = this.services[serviceName]
+      devices = [...devices, ...service.devices]
+    })
+    return devices
+  }
+
+  onDevicesUpdate() {
+    this.devices = this.getAllDevices()
+  }
+
   // INITIALIZATION ---------------
   initialize() {
     this.initializeItem('services')
     this.initializeItem('hooks')
+    this.startHooks()
   }
 
   initializeItem(key) {
@@ -39,13 +45,22 @@ class App {
       Config[key].forEach((item) => {
         if (!this[key][item]) {
           const ItemDefinition = require(`../${key}/${item.filename}`)
-          this[key][item.name] = new ItemDefinition()
-          debug(`Initializing -- ${item.name}`)
+          const itemInstance = new ItemDefinition()
+          itemInstance.application = this
+          this[key][item.name] = itemInstance
+          debug(`Initializing ${key} -- ${item.name}`)
         } else {
           debug(`${key} "${item}" already exists`)
         }
       })
     }
+  }
+
+  startHooks() {
+    Object.keys(this.hooks).forEach(key => {
+      const hook = this.hooks[key]
+      hook.start()
+    })
   }
 }
 
