@@ -11,23 +11,31 @@ class Service {
     this.name = name
     this.deviceClass = deviceClass
     this.deviceMap = {}
+    this.actions = {}
     // END REQUIRED
 
     // HELPERS
     this.application = null
+    this.shouldUpdateDevices = false
     this.saveInProgress = false
     this.saveQueue = []
 
     // INITIALIZATION
     this.initDevices()
+    this.setupActions()
   }
 
   // ---------------------------
   // MUST BE IMPLEMENTED BY SUBCLASS
   // ---------------------------
 
+  // Discovery
   discoverDevices() {
-    debug('`discoverDevices` must be implemented in the service subclass.')
+    debug('"discoverDevices" must be implemented in the service subclass.')
+  }
+
+  setupActions() {
+    debug('"setupActions" must be implemented in the service subclass.')
   }
 
   // ---------------------------
@@ -39,12 +47,11 @@ class Service {
    * Gets every device this service has
    */
   get devices() {
-    const deviceKeys = Object.keys(this.deviceMap)
-    const currentDeviceCount = deviceKeys.length
-    const cachedDeviceCount = this._devices ? this._devices.length : 0
-    if (currentDeviceCount > cachedDeviceCount || !this._devices) {
+    if (this.shouldUpdateDevices || !this._devices) {
+      const deviceKeys = Object.keys(this.deviceMap)
       this._devices = deviceKeys.map(key => this.deviceMap[key])
       this.notifyParentOfDeviceChanges()
+      this.shouldUpdateDevices = false
     }
     return this._devices
   }
@@ -95,6 +102,10 @@ class Service {
     }
   }
 
+  setShouldUpdateDevices() {
+    this.shouldUpdateDevices = true
+  }
+
   // ACTIONS --------------
   performAction({ action = '', duration, stagger, devices, params = {} } = {}) {
     return new Promise((resolve, reject) => {
@@ -109,16 +120,19 @@ class Service {
       // If we're performing a valid action
       // Perform that action on every light
       actionDevices.forEach((device) => {
+        debug(`Performing ${action} on ${device.id}`)
         try {
+          console.log(device.actions)
           if (device.actions[action]) {
             setTimeout(() => {
-              device[action](params)
+              device.actions[action].func(params)
               staggerAmt += stagger
             }, staggerAmt)
           } else {
             throw `${action} not found in ${device.name}'s actions`
           }
         } catch (error) {
+          console.log(error)
           debug(error)
           reject(error)
         }

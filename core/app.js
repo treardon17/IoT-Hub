@@ -6,8 +6,21 @@ const Config = require('../config')
 class App {
   constructor() {
     this.services = {}
-    this.devices = []
+    this.shouldUpdateDevices = false
     this.initialize()
+  }
+
+  get devices() {
+    if (this.shouldUpdateDevices || !this._devices) {
+      let devices = []
+      Object.keys(this.services).forEach((serviceName) => {
+        const service = this.services[serviceName]
+        devices = [...devices, ...service.devices]
+      })
+      this._devices = devices
+      this.shouldUpdateDevices = false
+    }
+    return this._devices
   }
 
   getDevicesOfType(type) {
@@ -19,17 +32,8 @@ class App {
   }
 
   // HELPERS ----------------------
-  getAllDevices() {
-    let devices = []
-    Object.keys(this.services).forEach((serviceName) => {
-      const service = this.services[serviceName]
-      devices = [...devices, ...service.devices]
-    })
-    return devices
-  }
-
   onDevicesUpdate() {
-    this.devices = this.getAllDevices()
+    this.shouldUpdateDevices = true
   }
 
   // INITIALIZATION ---------------

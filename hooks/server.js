@@ -26,14 +26,33 @@ class Server extends Hook {
     this.router = express.Router()
     const { services } = this.application
     const serviceKeys = Object.keys(services)
-    serviceKeys.forEach(service => {
-      this.router.post(`/${service}`, () => {
-        console.log('success!')
-      })
-    })
-    // this.app.post('/lifx', (req, res) => {
-    //   this.lifx.powerAll({ on: req.body.on, duration: 5000 })
-    // })
+
+    // Service specific routes
+    const onPost = (req, res, next) => { this.onPost({ req, res, next }) }
+    const onGet = (req, res, next) => { this.onGet({ req, res, next }) }
+
+    // Post
+    this.router.post(`/:service/:action`, onPost)
+    this.router.post(`/:service/device=:device/:action`, onPost)
+    // Get
+    this.router.get(`/:service/:action`, onGet)
+    this.router.get(`/:service/device=:device/:action`, onGet)
+  }
+
+  onPost({ req, res, next }) {
+    const { service, device, action } = req.params
+    if (service) {
+      const myService = this.application.services[service]
+      const myAction = myService.actions[action]
+      if (typeof myAction === 'function') {
+        const params = { id: device, ...req.body }
+        myAction(params)
+      }
+    }
+  }
+
+  onGet({ req, res, next }) {
+    const { service, device, action } = req.params
   }
 }
 

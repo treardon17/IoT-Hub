@@ -9,14 +9,21 @@ class LifxService extends Service {
     this.defaultTransition = 2000
   }
 
+  // INITIALIZATION
+  setupActions() {
+    this.actions.power = this.power.bind(this)
+    this.actions.color = this.color.bind(this)
+    this.actions.getLight = this.getLight.bind(this)
+  }
+
   // LISTENERS ------------
   discoverDevices() {
     return new Promise((resolve, reject) => {
       this.client = new LifxClient()
       this.client.on('light-new', this.onNewLight.bind(this))
       this.client.init()
-      // Lets wait 5 seconds before we quit trying to discover devices
-      setTimeout(() => { resolve() }, 5000)
+      // Lets wait a few seconds before we quit trying to discover devices
+      setTimeout(() => { resolve() }, 3000)
     })
   }
 
@@ -27,6 +34,7 @@ class LifxService extends Service {
         bulb.parentService = this
         this.deviceMap[light.id] = bulb
         this.saveDevices()
+        this.setShouldUpdateDevices()
         debug('Added light:', label, light.id, light.address)
       } else {
         debug('Error adding light --> could not fetch label', error)
@@ -34,7 +42,7 @@ class LifxService extends Service {
     })
   }
 
-  // HELPERS ------------
+  // ACTIONS ------------
   getLight(id) {
     const light = this.deviceMap[id]
     if (light) {
@@ -45,7 +53,7 @@ class LifxService extends Service {
     }
   }
 
-  powerDevices({ duration, on = true, stagger = 0 } = {}) {
+  power({ duration, on = true, stagger = 0 } = {}) {
     return this.performAction({
       duration,
       stagger,
@@ -55,7 +63,7 @@ class LifxService extends Service {
     }).catch(error => { debug(error) })
   }
 
-  colorDevices({ id, duration, stagger, red, green, blue } = {}) {
+  color({ id, duration, stagger, red, green, blue } = {}) {
     return this.performAction({
       duration,
       stagger,

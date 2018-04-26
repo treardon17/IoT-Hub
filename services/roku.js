@@ -25,6 +25,10 @@ class RokuService extends Service {
     })
   }
 
+  setupActions() {
+    this.actions.power = this.power.bind(this)
+  }
+
   discoverDevices() {
     return new Promise((resolve, reject) => {
       try {
@@ -34,6 +38,7 @@ class RokuService extends Service {
             const tv = new RokuTV({ id, ip, name: `Roku-${index}` })
             tv.parentService = this
             this.deviceMap[id] = tv
+            this.setShouldUpdateDevices()
           })
           resolve()
         })
@@ -48,6 +53,18 @@ class RokuService extends Service {
     delete this.deviceMap[existingID]
     this.deviceMap[id] = device
     this.saveDevices()
+  }
+
+  // ACTIONS ------------
+  power({ id, on, devices }) {
+    if (id) {
+      // Turn on specific device
+      const device = this.deviceMap[id]
+      device.power({ on })
+    } else {
+      // Turn on all devices
+      this.performAction({ action: 'power', params: { on }, devices })
+    }
   }
 }
 
