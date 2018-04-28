@@ -169,9 +169,18 @@ class Service {
         }
         if (this.name) {
           this.readData().then((data) => {
-            let devices = (override || !data.devices) ? (data.devices || []) : []
-            debug('Devices found', devices)
-            devices = [...devices, ...this.simpleDevices]
+            let devices = null
+            if (override && data.devices) {
+              // We want to erase the existing devices and
+              // start over with the newest ones
+              devices = this.simpleDevices
+            } else if (!data.devices) {
+              // We didn't save any devices, so we make an empty array
+              devices = []
+            } else {
+              devices = [...data.devices, ...this.simpleDevices]
+            }
+            debug(`Saving ${devices.length} devices`)
             devices = Util.Array.removeDuplicates({ array: devices, prop: ['ip', 'id'] })
             const validIDs = devices.map(device => device.id)
             const currentIDs = Object.keys(this.deviceMap)
