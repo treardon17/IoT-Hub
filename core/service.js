@@ -71,8 +71,8 @@ class Service {
     this.initExistingDevices()
       .then(this.discoverDevices.bind(this))
       .then(this.saveDevices.bind(this))
-      .catch(() => {
-        debug('Issue initializing devices')
+      .catch((error) => {
+        debug('Issue initializing devices', error)
       })
   }
 
@@ -84,11 +84,13 @@ class Service {
         reject(errMsg)
       } else {
         this.readData().then(data => {
-          data.devices.forEach((device) => {
-            debug('Creating device from existing data -- id:', device.id)
-            this.deviceMap[device.id] = new this.deviceClass(device)
-            this.notifyParentOfDeviceChanges()
-          })
+          if (data.devices) {
+            data.devices.forEach((device) => {
+              debug('Creating device from existing data -- id:', device.id)
+              this.deviceMap[device.id] = new this.deviceClass(device)
+              this.notifyParentOfDeviceChanges()
+            })
+          }
           resolve()
         }).catch(reject)
       }
@@ -167,7 +169,8 @@ class Service {
         }
         if (this.name) {
           this.readData().then((data) => {
-            let devices = (override || !data.devices) ? data.devices : []
+            let devices = (override || !data.devices) ? (data.devices || []) : []
+            debug('Devices found', devices)
             devices = [...devices, ...this.simpleDevices]
             devices = Util.Array.removeDuplicates({ array: devices, prop: ['ip', 'id'] })
             const validIDs = devices.map(device => device.id)
