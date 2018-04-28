@@ -8,7 +8,7 @@ class LifxBulb extends Device {
     this.defaultTransition = 2000
   }
 
-  getActions() {
+  get actions() {
     return {
       power: {
         desc: "Power on/off lights",

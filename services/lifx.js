@@ -32,6 +32,7 @@ class LifxService extends Service {
       if (!error) {
         let bulb = new LifxBulb({ id: light.id, ip: light.address, name: label, bulb: light })
         bulb.parentService = this
+        delete this.deviceMap[light.id]
         this.deviceMap[light.id] = bulb
         this.saveDevices()
         this.setShouldUpdateDevices()

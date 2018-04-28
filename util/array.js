@@ -7,6 +7,20 @@ class ArrayUtil {
     }
     return array.filter((obj, pos, arr) => arr.map(mapObj => mapObj[property]).indexOf(obj[property]) === pos)
   }
+
+  intersection({ array1, array2 }) {
+    return array1.filter(x => array2.includes(x))
+  }
+
+  difference({ array1, array2 }) {
+    return array1.filter(x => !array2.includes(x))
+  }
+
+  symmetricDifference({ array1, array2 }) {
+    return array1
+      .filter(x => !array2.includes(x))
+      .concat(array2.filter(x => !array1.includes(x)))
+  }
 }
 
 module.exports = new ArrayUtil()

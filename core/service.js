@@ -122,8 +122,7 @@ class Service {
       actionDevices.forEach((device) => {
         debug(`Performing ${action} on ${device.id}`)
         try {
-          const deviceActions = device.getActions()
-          console.log(deviceActions)
+          const deviceActions = device.actions
           if (deviceActions[action]) {
             setTimeout(() => {
               deviceActions[action].func(params)
@@ -171,7 +170,10 @@ class Service {
             let devices = (override || !data.devices) ? data.devices : []
             devices = [...devices, ...this.simpleDevices]
             devices = Util.Array.removeDuplicates({ array: devices, prop: ['ip', 'id'] })
-            this.deviceMap = this.deviceArrayToObject({ array: devices })
+            const validIDs = devices.map(device => device.id)
+            const currentIDs = Object.keys(this.deviceMap)
+            const invalidIDs = Util.Array.difference({ array1: currentIDs, array2: validIDs })
+            Util.Object.removeKeysFromObject({ object: this.deviceMap, keys: invalidIDs })
             Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: devices })
               .then(resolver)
               .catch(() => {

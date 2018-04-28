@@ -16,7 +16,7 @@ class RokuTV extends Device {
     return `http://${this.ip}:${this.port}`
   }
 
-  getActions() {
+  get actions() {
     return {
       power: {
         desc: 'Toggle power of TV',
