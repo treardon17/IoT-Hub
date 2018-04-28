@@ -3,6 +3,7 @@ const debug = require('debug')('Hook')
 class Hook {
   constructor() {
     this.application = null
+    this.token = null
   }
 
   // ---------------------------

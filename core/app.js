@@ -49,7 +49,7 @@ class App {
       Config[key].forEach((item) => {
         if (!this[key][item]) {
           const ItemDefinition = require(`../${key}/${item.filename}`)
-          const itemInstance = new ItemDefinition()
+          const itemInstance = new ItemDefinition({ token: Config.token })
           itemInstance.application = this
           this[key][item.name] = itemInstance
           debug(`Initializing ${key} -- ${item.name}`)

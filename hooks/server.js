@@ -4,6 +4,11 @@ const bodyParser = require('body-parser')
 const Hook = require('../core/hook')
 
 class Server extends Hook {
+  constructor({ token = null }) {
+    super()
+    this.token = token
+  }
+
   start() {
     this.port = 6875
     this.app = express()
@@ -35,26 +40,38 @@ class Server extends Hook {
     this.router.post(`/:service/:action`, onPost)
     this.router.post(`/:service/device=:device/:action`, onPost)
     // Get
-    this.router.get(`/:service/:action`, onGet)
-    this.router.get(`/:service/device=:device/:action`, onGet)
+    // this.router.get(`/:service/:action`, onGet)
+    // this.router.get(`/:service/device=:device/:action`, onGet)
   }
 
   onPost({ req, res, next }) {
     const { service, device, action } = req.params
+    const { token, ...body } = req.body
+    debug('Post request received:', `service "${service}", device "${device || 'all'}", action "${action}"`)
+
+    // Security -- ensure token is correct before performing task
+    if (token !== this.token) {
+      debug(`Token ${token} is incorrect`)
+      res.status(401).json({ success: false, error: 'Unauthorized' })
+      return
+    } else {
+      debug('Token valid')
+    }
+
+    // We are secure now, so
     if (service) {
       const myService = this.application.services[service]
       const myAction = myService.actions[action]
       if (typeof myAction === 'function') {
-        const params = { id: device, ...req.body }
-        const promise = myAction(params)
-        if (promise && typeof promise.then === 'function') {
-          promise.then(() => {
+        const params = { id: device, ...body }
+        try {
+          myAction(params).then(() => {
             res.json({ success: true })
           }).catch((error) => {
             res.status(500).json({ success: false, error })
           })
-        } else {
-          debug(`Action "${action}" in ${service} does not return a promise. Actions must return a promise.`)
+        } catch(error) {
+          debug(`Action "${action}" in ${service} does not return a promise. Actions must return a promise.`, error)
           res.json({ success: true, error: 'Skipping resolve due to function not returning promise.' })
         }
       } else {
