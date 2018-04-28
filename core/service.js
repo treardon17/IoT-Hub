@@ -114,7 +114,7 @@ class Service {
       let completeCount = 0
       const checkResovle = () => {
         completeCount += 1
-        if (completeCount === actionDevices.length) { resolve() }
+        if (completeCount === actionDevices.length - 1) { resolve() }
       }
       let staggerAmt = stagger
       // If we're performing a valid action
@@ -125,7 +125,7 @@ class Service {
           const deviceActions = device.actions
           if (deviceActions[action]) {
             setTimeout(() => {
-              deviceActions[action].func(params)
+              deviceActions[action].func(params).then(checkResovle)
               staggerAmt += stagger
             }, staggerAmt)
           } else {

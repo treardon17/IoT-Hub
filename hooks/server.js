@@ -46,8 +46,26 @@ class Server extends Hook {
       const myAction = myService.actions[action]
       if (typeof myAction === 'function') {
         const params = { id: device, ...req.body }
-        myAction(params)
+        const promise = myAction(params)
+        if (promise && typeof promise.then === 'function') {
+          promise.then(() => {
+            res.json({ success: true })
+          }).catch((error) => {
+            res.status(500).json({ success: false, error })
+          })
+        } else {
+          debug(`Action "${action}" in ${service} does not return a promise. Actions must return a promise.`)
+          res.json({ success: true, error: 'Skipping resolve due to function not returning promise.' })
+        }
+      } else {
+        const error = `Action "${action}" in ${service} is not a valid action.`
+        debug(error)
+        res.status(400).json({ success: false, error })
       }
+    } else {
+      const error = `Service "${service}" does not exist.`
+      debug(error)
+      res.status(400).json({ success: false, error })
     }
   }
 

@@ -61,7 +61,7 @@ class LifxService extends Service {
       action: 'power',
       stagger, 
       params: { on }
-    }).catch(error => { debug(error) })
+    })
   }
 
   color({ id, duration, stagger, red, green, blue } = {}) {
@@ -71,7 +71,7 @@ class LifxService extends Service {
       action: 'color',
       stagger,
       params: { red, green, blue }
-    }).catch(error => { debug(error) })
+    })
   }
 }
 
