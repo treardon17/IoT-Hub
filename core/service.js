@@ -169,7 +169,6 @@ class Service {
         }
         if (this.name) {
           this.readData().then((data) => {
-
             let devices = null
             if (override && data.devices) {
               // We want to erase the existing devices and
@@ -181,12 +180,12 @@ class Service {
             } else {
               devices = [...data.devices, ...this.simpleDevices]
             }
-            debug(`Saving ${devices.length} devices`)
             devices = Util.Array.removeDuplicates({ array: devices, prop: ['ip', 'id'] })
             const validIDs = devices.map(device => device.id)
             const currentIDs = Object.keys(this.deviceMap)
             const invalidIDs = Util.Array.difference({ array1: currentIDs, array2: validIDs })
             Util.Object.removeKeysFromObject({ object: this.deviceMap, keys: invalidIDs })
+            debug(`Saving ${devices.length} devices to ${this.name}.json`)
             Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: devices })
               .then(resolver)
               .catch(() => {
