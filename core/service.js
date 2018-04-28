@@ -122,17 +122,17 @@ class Service {
       actionDevices.forEach((device) => {
         debug(`Performing ${action} on ${device.id}`)
         try {
-          console.log(device.actions)
-          if (device.actions[action]) {
+          const deviceActions = device.getActions()
+          console.log(deviceActions)
+          if (deviceActions[action]) {
             setTimeout(() => {
-              device.actions[action].func(params)
+              deviceActions[action].func(params)
               staggerAmt += stagger
             }, staggerAmt)
           } else {
             throw `${action} not found in ${device.name}'s actions`
           }
         } catch (error) {
-          console.log(error)
           debug(error)
           reject(error)
         }

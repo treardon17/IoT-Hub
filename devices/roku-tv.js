@@ -10,8 +10,14 @@ class RokuTV extends Device {
     this.mac = (mac || '').toUpperCase()
     this.port = 8060
     this.setExtraInfo()
+  }
 
-    this.actions = {
+  get baseURL() {
+    return `http://${this.ip}:${this.port}`
+  }
+
+  getActions() {
+    return {
       power: {
         desc: 'Toggle power of TV',
         func: this.power.bind(this)
@@ -19,9 +25,6 @@ class RokuTV extends Device {
     }
   }
 
-  get baseURL() {
-    return `http://${this.ip}:${this.port}`
-  }
 
   setExtraInfo() {
     this.info().then(info => {

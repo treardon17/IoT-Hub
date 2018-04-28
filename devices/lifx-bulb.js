@@ -6,8 +6,10 @@ class LifxBulb extends Device {
     super({ id, ip, name, type: Device.types.light })
     this.bulb = bulb
     this.defaultTransition = 2000
+  }
 
-    this.actions = {
+  getActions() {
+    return {
       power: {
         desc: "Power on/off lights",
         func: this.power.bind(this)
@@ -38,12 +40,14 @@ class LifxBulb extends Device {
     duration ? null : duration = this.defaultTransition
     return new Promise((resolve, reject) => {
       if (this.bulb) {
-        if (on) {
+        if (on && typeof this.bulb.on === 'function') {
           debug('Turning on', this.name, this.id, this.ip)
           this.bulb.on(duration, resolve)
-        } else {
+        } else if (typeof this.bulb.off === 'function') {
           debug('Turning off', this.name, this.id, this.ip)
           this.bulb.off(duration, resolve)
+        } else {
+          debug(`The bulb in "${this.name}" did not initialize. Aborting...`)
         }
       } else {
         reject({ error: `Light ${id} does not exist` })
