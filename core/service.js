@@ -176,8 +176,8 @@ class Service {
               // start over with the newest ones
               devices = this.simpleDevices
             } else if (!data.devices) {
-              // We didn't save any devices, so we make an empty array
-              devices = []
+              // We didn't save any devices, so we use the devices we've found
+              devices = this.simpleDevices
             } else {
               devices = [...data.devices, ...this.simpleDevices]
             }
