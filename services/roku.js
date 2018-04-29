@@ -35,7 +35,7 @@ class RokuService extends Service {
         Util.Network.getIPsOnNetworkOnPort(8060).then(ips => {
           debug(`Found ${ips.length} IPs`)
           ips.forEach((ip, index) => {
-            const id = Util.ID.guid()
+            const id = Util.ID.guidMac()
             const tv = new RokuTV({ id, ip, name: `Roku-${index}` })
             tv.parentService = this
             this.deviceMap[id] = tv
@@ -49,10 +49,7 @@ class RokuService extends Service {
     })
   }
 
-  onDeviceExtraInfo({ existingID, id }) {
-    const device = this.deviceMap[existingID]
-    delete this.deviceMap[existingID]
-    this.deviceMap[id] = device
+  onDeviceExtraInfo() {
     this.saveDevices()
   }
 

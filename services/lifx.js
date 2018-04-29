@@ -30,13 +30,13 @@ class LifxService extends Service {
   onNewLight(light) {
     light.getLabel((error, label) => {
       if (!error) {
-        let bulb = new LifxBulb({ id: light.id, ip: light.address, name: label, bulb: light })
+        let bulb = new LifxBulb({ ip: light.address, name: label, bulb: light })
         bulb.parentService = this
-        delete this.deviceMap[light.id]
-        this.deviceMap[light.id] = bulb
+        delete this.deviceMap[bulb.id]
+        this.deviceMap[bulb.id] = bulb
         this.saveDevices()
         this.setShouldUpdateDevices()
-        debug('Added light:', label, light.id, light.address)
+        debug('Added light:', label, bulb.id, light.address)
       } else {
         debug('Error adding light --> could not fetch label', error)
       }

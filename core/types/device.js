@@ -1,4 +1,5 @@
 const debug = require('debug')('Device')
+const Util = require('../../util')
 
 /**
  * 
@@ -8,7 +9,7 @@ const debug = require('debug')('Device')
  */
 class Device {
   constructor({ id = '', name = '', ip = '', type }) {
-    this.id = id
+    this.id = id || Util.ID.guidMac()
     this.name = name
     this.ip = ip
     this.type = type || Device.generic

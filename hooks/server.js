@@ -10,7 +10,7 @@ class Server extends Hook {
   }
 
   start() {
-    this.port = 6875
+    this.port = 8080
     this.app = express()
     this.router = null
     this.app.use(bodyParser.json())

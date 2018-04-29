@@ -63,6 +63,7 @@ class Service {
   }
 
   get fileName() {
+    if (!this.name) { debug(`Service must have a valid "name" attribute`) }
     return `service-${this.name}`
   }
 
