@@ -1,5 +1,10 @@
 const debug = require('debug')('Hook')
 
+/**
+ * 
+ * @class Hook
+ * A Hook is a way of controlling a service
+ */
 class Hook {
   constructor() {
     this.application = null

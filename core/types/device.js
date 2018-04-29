@@ -1,4 +1,11 @@
 const debug = require('debug')('Device')
+
+/**
+ * 
+ * 
+ * @class Device
+ * A Device is anything that can be controlled
+ */
 class Device {
   constructor({ id = '', name = '', ip = '', type }) {
     this.id = id

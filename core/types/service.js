@@ -1,6 +1,12 @@
 const debug = require('debug')('Service')
-const Util = require('../util')
+const Util = require('../../util')
 
+/**
+ * 
+ * 
+ * @class Service
+ * A Service manages all devices of a specific type
+ */
 class Service {
   constructor({ name, deviceClass }) {
     // VALIDATION
@@ -31,11 +37,11 @@ class Service {
 
   // Discovery
   discoverDevices() {
-    debug('"discoverDevices" must be implemented in the service subclass.')
+    debug('"discoverDevices" must be implemented in the Service subclass.')
   }
 
   setupActions() {
-    debug('"setupActions" must be implemented in the service subclass.')
+    debug('"setupActions" must be implemented in the Service subclass.')
   }
 
   // ---------------------------
@@ -54,6 +60,10 @@ class Service {
       this.shouldUpdateDevices = false
     }
     return this._devices
+  }
+
+  get fileName() {
+    return `service-${this.name}`
   }
 
   /**
@@ -185,12 +195,12 @@ class Service {
             const currentIDs = Object.keys(this.deviceMap)
             const invalidIDs = Util.Array.difference({ array1: currentIDs, array2: validIDs })
             Util.Object.removeKeysFromObject({ object: this.deviceMap, keys: invalidIDs })
-            debug(`Saving ${devices.length} devices to ${this.name}.json`)
-            Util.FileIO.saveToDataFile({ fileName: this.name, key: 'devices', data: devices })
+            debug(`Saving ${devices.length} devices to ${this.fileName}.json`)
+            Util.FileIO.saveToDataFile({ fileName: this.fileName, key: 'devices', data: devices })
               .then(resolver)
               .catch(() => {
                 callback()
-                reject(`Could not save device to file ${this.name}`)
+                reject(`Could not save device to file ${this.fileName}.json`)
               })
           }).catch(() => {
             callback()
@@ -209,12 +219,12 @@ class Service {
   readData() {
     return new Promise((resolve, reject) => {
       if (this.name) {
-        Util.FileIO.readDataFile({ fileName: this.name })
+        Util.FileIO.readDataFile({ fileName: this.fileName })
           .then(resolve)
           .catch(() => {
-            debug(`File does not exist, so creating new file: ${this.name}.json`)
+            debug(`File does not exist, so creating new file: ${this.fileName}.json`)
             let data = {}
-            Util.FileIO.saveToDataFile({ fileName: this.name, data }).then(() => {
+            Util.FileIO.saveToDataFile({ fileName: this.fileName, data }).then(() => {
               resolve(data)
             })
           })

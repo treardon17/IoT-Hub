@@ -1,5 +1,5 @@
 const debug = require('debug')('Device:LifxBulb')
-const Device = require('../core/device')
+const Device = require('../core/types/device')
 
 class LifxBulb extends Device {
   constructor({ id, ip, name, bulb = {} }) {

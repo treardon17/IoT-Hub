@@ -1,4 +1,4 @@
-const Service = require('../core/service')
+const Service = require('../core/types/service')
 const RokuTV = require('../devices/roku-tv')
 const Util = require('../util')
 const debug = require('debug')('Service:RokuService')

@@ -1,6 +1,6 @@
 const debug = require('debug')('App')
 const Util = require('../util')
-const Device = require('../core/device')
+const Device = require('../core/types/device')
 const Config = require('../config')
 
 class App {

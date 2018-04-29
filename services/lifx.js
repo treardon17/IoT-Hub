@@ -1,4 +1,4 @@
-const Service = require('../core/service')
+const Service = require('../core/types/service')
 const LifxBulb = require('../devices/lifx-bulb')
 const LifxClient = require('node-lifx').Client
 const debug = require('debug')('Service:LifxService')
