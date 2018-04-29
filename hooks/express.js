@@ -1,9 +1,9 @@
-const debug = require('debug')('Hook:Server')
+const debug = require('debug')('Hook:Express')
+const Hook = require('../core/types/hook')
 const express = require('express')
 const bodyParser = require('body-parser')
-const Hook = require('../core/types/hook')
 
-class Server extends Hook {
+class Express extends Hook {
   constructor({ token = null }) {
     super()
     this.token = token
@@ -18,7 +18,7 @@ class Server extends Hook {
     this.app.use(this.handleRoute.bind(this))
     this.setupRoutes()
     this.app.listen(this.port)
-    debug('Server listening on port', this.port)
+    debug('Express listening on port', this.port)
   }
 
   handleRoute(req, res, next) {
@@ -91,4 +91,4 @@ class Server extends Hook {
   }
 }
 
-module.exports = Server
+module.exports = Express
