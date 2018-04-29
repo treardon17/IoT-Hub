@@ -1,10 +1,10 @@
 module.exports = {
   token: '123456',
   services: [
-    { name: 'lifx', filename: 'lifx' },
-    { name: 'roku', filename: 'roku' }
+    { name: 'Lifx', filename: 'lifx' },
+    { name: 'Roku', filename: 'roku' }
   ],
   hooks: [
-    { name: 'express', filename: 'server' }
+    { name: 'Express', filename: 'server' }
   ]
 }
