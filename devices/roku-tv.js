@@ -27,11 +27,10 @@ class RokuTV extends Device {
 
 
   setExtraInfo() {
-    this.info().then(info => {
-      const existingID = this.id
+    return this.info().then(info => {
       this.mac = (info['device-info']['wifi-mac'] || '').toUpperCase()
       if (this.parentService && typeof this.parentService.onDeviceExtraInfo === 'function') {
-        this.parentService.onDeviceExtraInfo()
+        this.parentService.onDeviceExtraInfo({ id: this.id, device: this })
       }
     }).catch(error => {
       debug(error)

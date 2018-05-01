@@ -8,23 +8,6 @@ class RokuService extends Service {
     super({ name: 'roku', deviceClass: RokuTV })
   }
 
-  // initDevices() {
-  //   this.initExistingDevices()
-  //     .then(this.discoverDevices.bind(this))
-  //     .then(this.saveDevices.bind(this))
-  // }
-
-  // initExistingDevices() {
-  //   return new Promise((resolve, reject) => {
-  //     this.readData().then(data => {
-  //       data.devices.forEach((device) => {
-  //         this.deviceMap[device.id] = new RokuTV(device)
-  //       })
-  //       resolve()
-  //     }).catch(reject)
-  //   })
-  // }
-
   setupActions() {
     this.actions.power = this.power.bind(this)
   }
@@ -34,14 +17,27 @@ class RokuService extends Service {
       try {
         Util.Network.getIPsOnNetworkOnPort(8060).then(ips => {
           debug(`Found ${ips.length} IPs`)
+
+          let resolveCount = 0
+          const checkResolve = () => {
+            resolveCount += 1
+            if (resolveCount === ips.length - 1) {
+              this.setShouldUpdateDevices()
+              resolve()
+            }
+          }
+          
           ips.forEach((ip, index) => {
             const id = Util.ID.guidMac()
             const tv = new RokuTV({ id, ip, name: `Roku-${index}` })
-            tv.parentService = this
-            this.deviceMap[id] = tv
-            this.setShouldUpdateDevices()
+            tv.setExtraInfo().then(() => {
+              tv.parentService = this
+              this.deviceMap[id] = tv
+              checkResolve()
+            }).catch((reject) => {
+              console.log('here')
+            })
           })
-          resolve()
         })
       } catch (error) {
         reject(error)
@@ -49,7 +45,7 @@ class RokuService extends Service {
     })
   }
 
-  onDeviceExtraInfo() {
+  onDeviceExtraInfo({ id, device }) {
     this.saveDevices()
   }
 

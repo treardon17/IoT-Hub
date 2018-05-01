@@ -46,7 +46,7 @@ class HomeKit extends Hook {
     .addService(Service.Lightbulb, device.name)
     .getCharacteristic(Characteristic.On)
     .on('set', (value, callback) => {
-      console.log('setting value to', value)
+      this.application.services.Roku.power({ on: value })
       callback()
     })
     
@@ -58,25 +58,20 @@ class HomeKit extends Hook {
     //     callback()
     //   })
 
-    accessory
-      .getService(Service.Lightbulb)
-      .getCharacteristic(Characteristic.Hue)
-      .on('set', (value, callback) => {
-        console.log('setting value to', value)
-        callback()
-      })
+    // accessory
+    //   .getService(Service.Lightbulb)
+    //   .getCharacteristic(Characteristic.Hue)
+    //   .on('set', (value, callback) => {
+    //     console.log('setting value to', value)
+    //     callback()
+    //   })
 
     accessory
       .getService(Service.Lightbulb)
       .getCharacteristic(Characteristic.On)
       .on('get', function (callback) {
-
-        // this event is emitted when you ask Siri directly whether your fan is on or not. you might query
-        // the fan hardware itself to find this out, then call the callback. But if you take longer than a
-        // few seconds to respond, Siri will give up.
-
         var err = null // in case there were any problems
-        const isOn = true
+        const isOn = false
         if (isOn) {
           callback(err, true)
         }
