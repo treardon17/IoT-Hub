@@ -17,6 +17,9 @@ class Hook {
   start() {
     debug('The "start" method must be implemented in subclasses.')
   }
+  stop() {
+    debug('The "stop" method must be implemented in subclasses.')
+  }
   // ---------------------------
   // END IMPLEMENTED BY SUBCLASS
   // ---------------------------
