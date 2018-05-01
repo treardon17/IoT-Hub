@@ -13,7 +13,7 @@ class HomeKit extends Hook {
   }
 
   start() {
-    console.log('HAP-NodeJS starting...')
+    debug('HAP-NodeJS starting...')
 
     // Initialize our storage system
     storage.initSync()
@@ -23,7 +23,7 @@ class HomeKit extends Hook {
 
     // Listen for bridge identification event
     this.bridge.on('identify', (paired, callback) => {
-      console.log('Node Bridge identify')
+      debug('Node Bridge identify')
       callback()
     })
 
@@ -41,9 +41,49 @@ class HomeKit extends Hook {
 
   addDevice(device) {
     const accessory = new Accessory(device.name, uuid.generate(device.id))
-    accessory.on('power', () => {
-      console.log('here')
+    
+    accessory
+    .addService(Service.Lightbulb, device.name)
+    .getCharacteristic(Characteristic.On)
+    .on('set', (value, callback) => {
+      console.log('setting value to', value)
+      callback()
     })
+    
+    // accessory
+    //   .getService(Service.Lightbulb)
+    //   .getCharacteristic(Characteristic.ColorTemperature)
+    //   .on('set', (value, callback) => {
+    //     console.log('setting value to', value)
+    //     callback()
+    //   })
+
+    accessory
+      .getService(Service.Lightbulb)
+      .getCharacteristic(Characteristic.Hue)
+      .on('set', (value, callback) => {
+        console.log('setting value to', value)
+        callback()
+      })
+
+    accessory
+      .getService(Service.Lightbulb)
+      .getCharacteristic(Characteristic.On)
+      .on('get', function (callback) {
+
+        // this event is emitted when you ask Siri directly whether your fan is on or not. you might query
+        // the fan hardware itself to find this out, then call the callback. But if you take longer than a
+        // few seconds to respond, Siri will give up.
+
+        var err = null // in case there were any problems
+        const isOn = true
+        if (isOn) {
+          callback(err, true)
+        }
+        else {
+          callback(err, false)
+        }
+      })
     this.bridge.addBridgedAccessory(accessory)
   }
 }
