@@ -1,5 +1,6 @@
 const debug = require('debug')('Device:LifxBulb')
 const Device = require('../core/types/device')
+const Action = require('../core/types/action')
 
 class LifxBulb extends Device {
   constructor({ id, ip, name, bulb = {} }) {
@@ -8,16 +9,18 @@ class LifxBulb extends Device {
     this.defaultTransition = 2000
   }
 
-  get actions() {
+  createActions() {
     return {
-      power: {
+      power: new Action({
         desc: "Power on/off lights",
-        func: this.power.bind(this)
-      },
-      color: {
+        func: this.power.bind(this),
+        type: Action.types.switch
+      }),
+      color: new Action({
         desc: "Change color of lights",
-        func: this.color.bind(this)
-      }
+        func: this.color.bind(this),
+        type: Action.types.hue
+      })
     }
   }
 
@@ -48,9 +51,10 @@ class LifxBulb extends Device {
           this.bulb.off(duration, resolve)
         } else {
           debug(`The bulb in "${this.name}" did not initialize. Aborting...`)
+          reject({ error: `Light ${this.id} did not initialize` })
         }
       } else {
-        reject({ error: `Light ${id} does not exist` })
+        reject({ error: `Light ${this.id} does not exist` })
       }
     })
   }

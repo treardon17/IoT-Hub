@@ -47,14 +47,15 @@ class App {
     if (Config && Config[key] && Array.isArray(Config[key])) {
       this[key] = {}
       Config[key].forEach((item) => {
-        if (!this[key][item]) {
+        const itemName = item.name.toLowerCase()
+        if (!this[key][itemName]) {
           const ItemDefinition = require(`../${key}/${item.filename}`)
           const itemInstance = new ItemDefinition({ token: Config.token })
           itemInstance.application = this
-          this[key][item.name] = itemInstance
+          this[key][itemName] = itemInstance
           debug(`Initializing ${key} -- ${item.name}`)
         } else {
-          debug(`${key} "${item}" already exists`)
+          debug(`${key} "${itemName}" already exists`)
         }
       })
     }

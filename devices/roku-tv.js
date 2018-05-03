@@ -3,6 +3,7 @@ const Device = require('../core/types/device')
 var parser = require('xml2json')
 const wol = require('wake_on_lan')
 const axios = require('axios')
+const Action = require('../core/types/action')
 
 class RokuTV extends Device {
   constructor({ id, name, ip, mac }) {
@@ -16,15 +17,15 @@ class RokuTV extends Device {
     return `http://${this.ip}:${this.port}`
   }
 
-  get actions() {
+  createActions() {
     return {
-      power: {
+      power: new Action({
         desc: 'Toggle power of TV',
-        func: this.power.bind(this)
-      }
+        func: this.power.bind(this),
+        type: Action.types.switch
+      })
     }
   }
-
 
   setExtraInfo() {
     return this.info().then(info => {

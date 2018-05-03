@@ -14,14 +14,15 @@ class Device {
     this.ip = ip
     this.type = type || Device.generic
     this.parentService = null
+    this.actions = this.createActions()
   }
 
   // ---------------------------
   // MUST BE IMPLEMENTED BY SUBCLASS
   // ---------------------------
 
-  get actions() {
-    debug('"actions" must be implemented by subclass --> return an object with keys matching the name of the function you wish to call. Include "desc" as a child of the object, describing what the function does.')
+  createActions() {
+    debug('"createActions" must be implemented by subclass --> return an Action object with keys matching the name of the function you wish to call. Include "desc" as a child of the object, describing what the function does.')
     return {}
   }
 

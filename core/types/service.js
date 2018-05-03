@@ -138,7 +138,10 @@ class Service {
           const deviceActions = device.actions
           if (deviceActions[action]) {
             setTimeout(() => {
-              deviceActions[action].func(params).then(checkResovle)
+              deviceActions[action]
+                .func(params)
+                .then(checkResovle)
+                .catch(reject)
               staggerAmt += stagger
             }, staggerAmt)
           } else {

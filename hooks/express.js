@@ -58,9 +58,9 @@ class Express extends Hook {
       debug('Token valid')
     }
 
+    const myService = this.application.services[service]
     // We are secure now, so
-    if (service) {
-      const myService = this.application.services[service]
+    if (service && myService) {
       const myAction = myService.actions[action]
       if (typeof myAction === 'function') {
         const params = { id: device, ...body }
