@@ -8,18 +8,19 @@ const { Accessory, Service, Characteristic, Bridge, uuid } = HAPNodeJS
 const qrcode = require('qrcode-terminal')
 const Device = require('../core/types/device')
 const Action = require('../core/types/action')
-const RokuTV = require('../devices/roku-tv')
+const LifxBulb = require('../devices/lifx-bulb')
 
 class HomeKit extends Hook {
   constructor() {
     super()
-    this.username = 'CC:22:3D:E3:CE:F9'
+    this.username = 'CC:22:3D:E3:CE:F1'
     this.pincode = '031-45-154'
     this.setDeviceMap()
     this.setActionMap()
   }
 
   setDeviceMap() {
+    debug('Setting device mappings')
     this.deviceTypeMapping = {
       [Device.types.light]: Service.Lightbulb,
       [Device.types.tv]: Service.Switch
@@ -27,8 +28,10 @@ class HomeKit extends Hook {
   }
 
   setActionMap() {
+    debug('Setting action mappings')
     this.deviceActionMapping = {
-      [Action.types.switch]: Characteristic.On
+      [Action.types.switch]: Characteristic.On,
+      [Action.types.hue]: Characteristic.Hue
     }
   }
 
@@ -55,8 +58,8 @@ class HomeKit extends Hook {
     this.printData()
 
     // Testing --------------
-    const roku = new RokuTV({ id: 'CF:45:E7:43:F8:CE', name: 'roku', ip: '192.168.0.179', mac: 'CF:45:E7:43:F8:CE' })
-    this.addDevice(roku)
+    const light = new LifxBulb({ id: 'CF:45:E7:43:F8:CE', name: 'bulb', ip: '192.168.0.179', mac: 'CF:45:E7:43:F8:CE' })
+    this.addDevice(light)
   }
 
   printData() {
@@ -77,31 +80,34 @@ class HomeKit extends Hook {
 
   addDevice(device) {
     // Create the accessory object
-    // const accessory = new Accessory(device.name, uuid.generate(device.id))
-    // const type = this.deviceTypeMapping[device.type]
-    // if (type != null) {
-    //   accessory.addService(type, device.name)
-    //   const actionKeys = Object.keys(device.actions) || []
-    //   actionKeys.forEach((key) => {
-    //     const action = device.actions[key]
-    //     const characteristic = this.deviceActionMapping[action.type]
-    //     if (characteristic != null) {
-    //       const service = accessory.getService(type)
-    //       console.log('service is', characteristic)
-    //       service
-    //         .getCharacteristic(characteristic)
-    //         .on('set', (value, callback) => {
-    //           action.func({ on: value })
-    //         })
-    //     } else {
-    //       debug(`Action type ${action.type} in ${key} of ${device.name} is not yet supported. Aborting...`)
-    //     }
-    //   })
-    // } else {
-    //   debug(`Device type ${device.type} is not yet supported. Aborting...`)
-    //   return
-    // }
-    // this.bridge.addBridgedAccessory(accessory)
+    const accessory = new Accessory(device.name, uuid.generate(device.id))
+    const type = this.deviceTypeMapping[device.type]
+    if (type != null) {
+      accessory.addService(type, device.name)
+      const actionKeys = Object.keys(device.actions) || []
+      actionKeys.forEach((key) => {
+        const action = device.actions[key]
+        const characteristic = this.deviceActionMapping[action.type]
+        if (characteristic != null) {
+          const service = accessory.getService(type)
+          service
+            .getCharacteristic(characteristic)
+            .on('set', (value, callback) => {
+              console.log('set value', value)
+              action
+                .func({ on: value })
+                .then(callback)
+                .catch(callback)
+            })
+        } else {
+          debug(`Action type ${action.type} in ${key} of ${device.name} is not yet supported. Aborting...`)
+        }
+      })
+    } else {
+      debug(`Device type ${device.type} is not yet supported. Aborting...`)
+      return
+    }
+    this.bridge.addBridgedAccessory(accessory)
 
     
     // accessory
