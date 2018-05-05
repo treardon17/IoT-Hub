@@ -1,13 +1,15 @@
 const debug = require('debug')('Action')
 
 class Action {
-  constructor({ desc, func, type } = {}) {
+  constructor({ execute, status, desc, type } = {}) {
+    if (!execute || typeof execute !== 'function') { debug('Action must have a "execute" --> function returning a promise') }
+    if (!status || typeof status !== 'function') { debug('Action must have a "status" --> function returning a promise') }
     if (!desc) { debug('Action must have a "description"') }
-    if (!func || typeof func !== 'function') { debug('Action must have a "func"') }
     if (!type) { debug('Action must have a "type"') }
 
+    this.execute = execute
+    this.status = status
     this.desc = desc
-    this.func = func
     this.type = type
   }
 }

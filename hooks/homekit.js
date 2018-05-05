@@ -15,11 +15,12 @@ class HomeKit extends Hook {
     super()
     this.username = 'CC:22:3D:E3:CE:F1'
     this.pincode = '031-45-154'
-    this.setDeviceMap()
-    this.setActionMap()
+    this.accessoryMap = {}
+    this.setDeviceMappings()
+    this.setActionMappings()
   }
 
-  setDeviceMap() {
+  setDeviceMappings() {
     debug('Setting device mappings')
     this.deviceTypeMapping = {
       [Device.types.light]: Service.Lightbulb,
@@ -27,7 +28,7 @@ class HomeKit extends Hook {
     }
   }
 
-  setActionMap() {
+  setActionMappings() {
     debug('Setting action mappings')
     this.deviceActionMapping = {
       [Action.types.switch]: Characteristic.On,
@@ -56,10 +57,6 @@ class HomeKit extends Hook {
     })
 
     this.printData()
-
-    // Testing --------------
-    const light = new LifxBulb({ id: 'CF:45:E7:43:F8:CE', name: 'bulb', ip: '192.168.0.179', mac: 'CF:45:E7:43:F8:CE' })
-    this.addDevice(light)
   }
 
   printData() {
@@ -81,6 +78,7 @@ class HomeKit extends Hook {
   addDevice(device) {
     // Create the accessory object
     const accessory = new Accessory(device.name, uuid.generate(device.id))
+    this.accessoryMap[device.id] = accessory
     const type = this.deviceTypeMapping[device.type]
     if (type != null) {
       accessory.addService(type, device.name)
@@ -93,11 +91,28 @@ class HomeKit extends Hook {
           service
             .getCharacteristic(characteristic)
             .on('set', (value, callback) => {
-              console.log('set value', value)
               action
-                .func({ on: value })
-                .then(callback)
-                .catch(callback)
+                .execute(value)
+                .then(() => {
+                  console.log('inside then in set')
+                  callback(null)
+                })
+                .catch(() => {
+                  console.log('errored in set')
+                  callback()
+                })
+            })
+            .on('get', (callback) => {
+              action
+                .status()
+                .then(() => {
+                  console.log('get called')
+                  callback()
+                })
+                .catch(() => {
+                  console.log('errored in get')
+                  callback(false)
+                })
             })
         } else {
           debug(`Action type ${action.type} in ${key} of ${device.name} is not yet supported. Aborting...`)
@@ -147,7 +162,13 @@ class HomeKit extends Hook {
     //       callback(err, false)
     //     }
     //   })
-    
+  }
+
+  // ----------------------------
+  // LIFECYCLE HOOKS ------------
+  // ----------------------------
+  devicesChanged(devices) {
+    console.log('NEW DEVICES', devices)
   }
 }
 

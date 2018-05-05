@@ -15,10 +15,13 @@ class Hook {
   // MUST BE IMPLEMENTED BY SUBCLASS
   // ---------------------------
   start() {
-    debug('The "start" method must be implemented in subclasses.')
+    debug('The "start" method must be implemented in subclasses of Hook.')
   }
   stop() {
-    debug('The "stop" method must be implemented in subclasses.')
+    debug('The "stop" method must be implemented in subclasses of Hook.')
+  }
+  devicesChanged() {
+    debug('The "devicesChanged" method must be implemented in subclasses of Hook.')
   }
   // ---------------------------
   // END IMPLEMENTED BY SUBCLASS

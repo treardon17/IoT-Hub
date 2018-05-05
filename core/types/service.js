@@ -16,7 +16,6 @@ class Service {
     // REQUIRED
     this.name = name
     this.deviceClass = deviceClass
-    this.deviceMap = {}
     this.actions = {}
     // END REQUIRED
 
@@ -56,7 +55,6 @@ class Service {
     if (this.shouldUpdateDevices || !this._devices) {
       const deviceKeys = Object.keys(this.deviceMap)
       this._devices = deviceKeys.map(key => this.deviceMap[key])
-      this.notifyParentOfDeviceChanges()
       this.shouldUpdateDevices = false
     }
     return this._devices
@@ -80,7 +78,28 @@ class Service {
   // -----------------------------
   // INIT ------------------------
   // -----------------------------
+  initDeviceMap() {
+    this._deviceMap = {}
+    this.deviceMap = new Proxy(this._deviceMap, {
+      get: (obj, prop) => {
+        if (prop) {
+          return this._deviceMap[prop]
+        } else {
+          return this._deviceMap
+        }
+      },
+      set: (target, prop, value, receiver) => {
+        if (prop != null) {
+          this._deviceMap[prop] = value
+          this.notifyParentOfDeviceChanges()
+          return true
+        }
+      }
+    })
+  }
+
   initDevices() {
+    this.initDeviceMap()
     this.initExistingDevices()
       .then(this.discoverDevices.bind(this))
       .then(this.saveDevices.bind(this))
@@ -101,7 +120,6 @@ class Service {
             data.devices.forEach((device) => {
               debug('Creating device from existing data -- id:', device.id)
               this.deviceMap[device.id] = new this.deviceClass(device)
-              this.notifyParentOfDeviceChanges()
             })
           }
           resolve()
@@ -149,7 +167,7 @@ class Service {
           if (deviceActions[action]) {
             setTimeout(() => {
               deviceActions[action]
-                .func(params)
+                .execute(params)
                 .then(checkResovle)
                 .catch(reject)
               staggerAmt += stagger
@@ -165,7 +183,9 @@ class Service {
     })
   }
 
-  // DATA
+  // -----------------------------
+  // DATA ------------------------
+  // -----------------------------
   processSaveQueue() {
     if (!this.saveInProgress && this.saveQueue.length > 0) {
       this.saveInProgress = true
@@ -184,9 +204,6 @@ class Service {
     return obj
   }
 
-  // -----------------------------
-  // DATA ------------------------
-  // -----------------------------
   saveDevices({ override } = {}) {
     return new Promise((resolve, reject) => {
       const saveProcess = (callback) => {
@@ -215,9 +232,9 @@ class Service {
                 callback()
                 reject(`Could not save device to file ${this.fileName}.json`)
               })
-          }).catch(() => {
+          }).catch((error) => {
             callback()
-            reject('Had trouble reading from file while saving devices')
+            reject('Had trouble reading from file while saving devices', error)
           })
         } else {
           callback()

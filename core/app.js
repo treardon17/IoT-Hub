@@ -2,6 +2,7 @@ const debug = require('debug')('App')
 const Util = require('../util')
 const Device = require('../core/types/device')
 const Config = require('../config')
+const _ = require('lodash')
 
 class App {
   constructor() {
@@ -17,10 +18,15 @@ class App {
         const service = this.services[serviceName]
         devices = [...devices, ...service.devices]
       })
+      this._prevDevices = (this._devices || []).slice()
       this._devices = devices
       this.shouldUpdateDevices = false
     }
     return this._devices
+  }
+
+  get previousDevices() {
+    return this._prevDevices || []
   }
 
   getDevicesOfType(type) {
@@ -34,6 +40,17 @@ class App {
   // HELPERS ----------------------
   onDevicesUpdate() {
     this.shouldUpdateDevices = true
+    this.notifyHooksOfDeviceChange()
+  }
+
+  notifyHooksOfDeviceChange() {
+    const newDevices = _.differenceBy(this.devices, this.previousDevices, 'id')
+    Object.keys(this.hooks).forEach((key) => {
+      const hook = this.hooks[key]
+      if (typeof hook.devicesChanged === 'function') {
+        hook.devicesChanged({ newDevices })
+      }
+    })
   }
 
   // INITIALIZATION ---------------

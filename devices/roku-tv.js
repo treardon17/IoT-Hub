@@ -21,7 +21,7 @@ class RokuTV extends Device {
     return {
       power: new Action({
         desc: 'Toggle power of TV',
-        func: this.power.bind(this),
+        execute: this.power.bind(this),
         type: Action.types.switch
       })
     }

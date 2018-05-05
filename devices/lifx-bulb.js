@@ -3,9 +3,10 @@ const Device = require('../core/types/device')
 const Action = require('../core/types/action')
 
 class LifxBulb extends Device {
-  constructor({ id, ip, name, bulb = {} }) {
+  constructor({ id, ip, name, bulb = null }) {
     super({ id, ip, name, type: Device.types.light })
     this.bulb = bulb
+    this.lightState = {}
     this.defaultTransition = 2000
   }
 
@@ -13,18 +14,21 @@ class LifxBulb extends Device {
     return {
       power: new Action({
         desc: "Power on/off lights",
-        func: this.power.bind(this),
+        execute: this.power.bind(this),
+        status: this.getPowerState.bind(this),
         type: Action.types.switch
       }),
       color: new Action({
         desc: "Change color of lights",
-        func: this.color.bind(this),
+        execute: this.color.bind(this),
         type: Action.types.hue
       })
     }
   }
 
-  // HELPER FUNCTIONS
+  // ------------------------
+  // HELPER FUNCTIONS -------
+  // ------------------------
   maxMin({ max, min, name, value }) {
     let newVal = null
     if (value < min) {
@@ -39,6 +43,38 @@ class LifxBulb extends Device {
     return newVal
   }
 
+  // ------------------------
+  // GETTERS ----------------
+  // ------------------------
+  getLightState() {
+    return new Promise((resolve, reject) => {
+      if (this.bulb) {
+        this.bulb.getState((error, data) => {
+          if (error) { reject(error) }
+          else {
+            this.lightState = data
+            resolve(data)
+          }
+        })
+      } else {
+        reject({ error: `"getLightState": Light ${this.id} does not exist` })
+      }
+    })
+  }
+
+  getPowerState() {
+    return new Promise((resolve, reject) => {
+      this.getLightState().then((state) => {
+        const powerState = state.power ? true : false
+        resolve(powerState)
+      }).catch(reject)
+    })
+  }
+
+
+  // ------------------------
+  // ACTIONS ----------------
+  // ------------------------
   power(on) {
     return new Promise((resolve, reject) => {
       if (this.bulb) {
@@ -53,7 +89,7 @@ class LifxBulb extends Device {
           reject({ error: `Light ${this.id} did not initialize` })
         }
       } else {
-        reject({ error: `Light ${this.id} does not exist` })
+        reject({ error: `"power": Light ${this.id} does not exist` })
       }
     })
   }
@@ -64,20 +100,24 @@ class LifxBulb extends Device {
         debug('Changing color', light.name, this.id, this.ip)
         this.bulb.colorRgb(red, green, blue, this.defaultTransition, resolve)
       } else {
-        reject({ error: `Light ${id} does not exist` })
+        reject({ error: `"colorRGB": Light ${this.id} does not exist` })
       }
     })
   }
 
   color({ hue, saturation, brightness, kelvin }) {
-    return new Promise((resolve) => {
-      this.bulb.getState((state) => {
-        hue = hue ? self.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.hue
-        saturation = saturation ? self.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.saturation
-        brightness = brightness ? self.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.brightness
-        kelvin = kelvin ? self.maxMin({ min: 2500, max: 9000, name: 'kelvin', value: kelvin }) : state.kelvin
-        light.color(hue, saturation, brightness, kelvin, this.defaultTransition, resolve)
-      })
+    return new Promise((resolve, reject) => {
+      if (this.bulb) {
+        this.bulb.getState((state) => {
+          hue = hue ? self.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.hue
+          saturation = saturation ? self.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.saturation
+          brightness = brightness ? self.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.brightness
+          kelvin = kelvin ? self.maxMin({ min: 2500, max: 9000, name: 'kelvin', value: kelvin }) : state.kelvin
+          light.color(hue, saturation, brightness, kelvin, this.defaultTransition, resolve)
+        })
+      } else {
+        reject({ error: `"color": Light ${this.id} does not exist` })
+      }
     })
   }
 }
