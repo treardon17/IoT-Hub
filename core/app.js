@@ -8,7 +8,12 @@ class App {
   constructor() {
     this.services = {}
     this.shouldUpdateDevices = false
+    this.setupDebounce()
     this.initialize()
+  }
+
+  setupDebounce() {
+    this.notifyHooks = _.debounce(this.notifyHooksOfDeviceChange.bind(this), 1000)
   }
 
   get devices() {
@@ -23,6 +28,7 @@ class App {
       // Hang on to the previous state of devices so we
       // can see any new devices that have been added
       this._prevDevices = (this._devices || []).slice()
+      // Set the new value of devices here
       this._devices = devices
       // We don't want to update this again unless we have to
       // --> the child services will set this value to true
@@ -47,9 +53,10 @@ class App {
   // ------------------------------
   // HELPERS ----------------------
   // ------------------------------
-  onDevicesUpdate() {
+  onChildDevicesUpdate() {
+    // Next time `this.devices` gets used, it will update
     this.shouldUpdateDevices = true
-    this.notifyHooksOfDeviceChange()
+    this.notifyHooks()
   }
 
   notifyHooksOfDeviceChange() {

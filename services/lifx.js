@@ -5,7 +5,7 @@ const debug = require('debug')('Service:LifxService')
 
 class LifxService extends Service {
   constructor() {
-    super({ name: 'lifx', deviceClass: LifxBulb })
+    super({ name: 'lifx', deviceClass: LifxBulb, loadDevicesFromFile: false })
     this.defaultTransition = 2000
   }
 

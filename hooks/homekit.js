@@ -94,24 +94,20 @@ class HomeKit extends Hook {
               action
                 .execute(value)
                 .then(() => {
-                  console.log('inside then in set')
-                  callback(null)
+                  callback(null, true)
                 })
-                .catch(() => {
-                  console.log('errored in set')
-                  callback()
+                .catch((error) => {
+                  callback(null, false)
                 })
             })
             .on('get', (callback) => {
               action
                 .status()
-                .then(() => {
-                  console.log('get called')
-                  callback()
+                .then((status) => {
+                  callback(null, status)
                 })
                 .catch(() => {
-                  console.log('errored in get')
-                  callback(false)
+                  callback(null, false)
                 })
             })
         } else {
@@ -168,9 +164,11 @@ class HomeKit extends Hook {
   // LIFECYCLE HOOKS ------------
   // ----------------------------
   devicesChanged({ newDevices }) {
-    if (newDevices) {
+    if (newDevices && newDevices.length > 0) {
       newDevices.forEach((device) => {
-        this.addDevice(device)
+        if (!this.accessoryMap[device.id]) {
+          this.addDevice(device)
+        }
       })
     }
   }

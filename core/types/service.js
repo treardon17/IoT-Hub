@@ -8,22 +8,25 @@ const Util = require('../../util')
  * A Service manages all devices of a specific type
  */
 class Service {
-  constructor({ name, deviceClass }) {
+  constructor({ name, deviceClass, loadDevicesFromFile }) {
     // VALIDATION
     if (!name) { debug('Service must have a "name" attribute!') }
     if (!deviceClass) { debug('Service must have a "deviceClass" attribute!') }
 
-    // REQUIRED
+    // REQUIRED -------------------
     this.name = name
     this.deviceClass = deviceClass
+    // END REQUIRED ---------------
+    
+    // STATE
     this.actions = {}
-    // END REQUIRED
-
-    // HELPERS
-    this.application = null
     this.shouldUpdateDevices = false
     this.saveInProgress = false
     this.saveQueue = []
+    
+    // HELPERS
+    this.loadDevicesFromFile = (loadDevicesFromFile != null ? loadDevicesFromFile : true)
+    this.application = null
 
     // INITIALIZATION
     this.initDevices()
@@ -83,16 +86,18 @@ class Service {
     this.deviceMap = new Proxy(this._deviceMap, {
       get: (obj, prop) => {
         if (prop) {
-          return this._deviceMap[prop]
+          return obj[prop]
         } else {
-          return this._deviceMap
+          return obj
         }
       },
       set: (target, prop, value, receiver) => {
         if (prop != null) {
-          this._deviceMap[prop] = value
+          target[prop] = value
           this.notifyParentOfDeviceChanges()
           return true
+        } else {
+          return false
         }
       }
     })
@@ -110,20 +115,25 @@ class Service {
 
   initExistingDevices() {
     return new Promise((resolve, reject) => {
-      if (!this.deviceClass) {
-        const errMsg = 'Service missing "deviceClass"'
-        debug(errMsg)
-        reject(errMsg)
+      if (this.loadDevicesFromFile) {
+        if (!this.deviceClass) {
+          const errMsg = 'Service missing "deviceClass"'
+          debug(errMsg)
+          reject(errMsg)
+        } else {
+          this.readData().then(data => {
+            if (data.devices) {
+              data.devices.forEach((device) => {
+                debug('Creating device from existing data -- id:', device.id)
+                this.deviceMap[device.id] = new this.deviceClass(device)
+              })
+            }
+            resolve()
+          }).catch(reject)
+        }
       } else {
-        this.readData().then(data => {
-          if (data.devices) {
-            data.devices.forEach((device) => {
-              debug('Creating device from existing data -- id:', device.id)
-              this.deviceMap[device.id] = new this.deviceClass(device)
-            })
-          }
-          resolve()
-        }).catch(reject)
+        debug('Skip loading devices from file')
+        resolve()
       }
     })
   }
@@ -132,8 +142,8 @@ class Service {
   // HELPERS ---------------------
   // -----------------------------
   notifyParentOfDeviceChanges() {
-    if (this.application && typeof this.application.onDevicesUpdate === 'function') {
-      this.application.onDevicesUpdate()
+    if (this.application && typeof this.application.onChildDevicesUpdate === 'function') {
+      this.application.onChildDevicesUpdate()
     }
   }
 
