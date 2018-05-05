@@ -14,12 +14,19 @@ class App {
   get devices() {
     if (this.shouldUpdateDevices || !this._devices) {
       let devices = []
+      // Go through all of the services and aggregate
+      // a complete list of devices available
       Object.keys(this.services).forEach((serviceName) => {
         const service = this.services[serviceName]
         devices = [...devices, ...service.devices]
       })
+      // Hang on to the previous state of devices so we
+      // can see any new devices that have been added
       this._prevDevices = (this._devices || []).slice()
       this._devices = devices
+      // We don't want to update this again unless we have to
+      // --> the child services will set this value to true
+      // if they find a new device
       this.shouldUpdateDevices = false
     }
     return this._devices
@@ -37,7 +44,9 @@ class App {
     })
   }
 
+  // ------------------------------
   // HELPERS ----------------------
+  // ------------------------------
   onDevicesUpdate() {
     this.shouldUpdateDevices = true
     this.notifyHooksOfDeviceChange()
@@ -53,7 +62,9 @@ class App {
     })
   }
 
+  // ------------------------------
   // INITIALIZATION ---------------
+  // ------------------------------
   initialize() {
     this.initializeItem('services')
     this.initializeItem('hooks')
@@ -61,13 +72,18 @@ class App {
   }
 
   initializeItem(key) {
+    // Look through the configuration file for the key specified
+    // and then initialize the items in that array if it exists
     if (Config && Config[key] && Array.isArray(Config[key])) {
+      // Construct the application from those values in the config
       this[key] = {}
       Config[key].forEach((item) => {
         const itemName = item.name.toLowerCase()
         if (!this[key][itemName]) {
+          // Grab the corresponding classes from the files and create an instance of them
           const ItemDefinition = require(`../${key}/${item.filename}`)
           const itemInstance = new ItemDefinition({ token: Config.token })
+          // Set the item's parent application so it has access to all the devices
           itemInstance.application = this
           this[key][itemName] = itemInstance
           debug(`Initializing ${key} -- ${item.name}`)
