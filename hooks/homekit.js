@@ -77,7 +77,7 @@ class HomeKit extends Hook {
 
   addDevice(device) {
     // Create the accessory object
-    const accessory = new Accessory(device.name, uuid.generate(device.id))
+    const accessory = new Accessory(device.name, uuid.generate(device.guid))
     this.accessoryMap[device.id] = accessory
     const type = this.deviceTypeMapping[device.type]
     if (type != null) {
@@ -167,8 +167,12 @@ class HomeKit extends Hook {
   // ----------------------------
   // LIFECYCLE HOOKS ------------
   // ----------------------------
-  devicesChanged(devices) {
-    console.log('NEW DEVICES', devices)
+  devicesChanged({ newDevices }) {
+    if (newDevices) {
+      newDevices.forEach((device) => {
+        this.addDevice(device)
+      })
+    }
   }
 }
 

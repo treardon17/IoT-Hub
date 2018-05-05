@@ -42,7 +42,7 @@ class IDUtil {
       let char = str.charCodeAt(i)
       hash = char + (hash << 6) + (hash << 16) - hash
     }
-    return Math.abs(hash)
+    return `${Math.abs(hash)}`
   }
 }
 

@@ -8,8 +8,9 @@ const Util = require('../../util')
  * A Device is anything that can be controlled
  */
 class Device {
-  constructor({ id = '', name = '', ip = '', type }) {
+  constructor({ id = '', guid = '', name = '', ip = '', type }) {
     this.id = id || Util.ID.hash(name)
+    this.guid = Util.ID.guid()
     this.name = name
     this.ip = ip
     this.type = type || Device.generic

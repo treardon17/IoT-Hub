@@ -70,8 +70,8 @@ class Service {
  */
   get simpleDevices() {
     return this.devices.map(device => {
-      const { id, name, ip, type, mac } = device
-      return { id, name, ip, type, mac }
+      const { id, name, guid, ip, type, mac } = device
+      return { id, name, guid, ip, type, mac }
     })
   }
 
