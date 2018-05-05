@@ -77,7 +77,9 @@ class Service {
     })
   }
 
-  // INIT -----------------
+  // -----------------------------
+  // INIT ------------------------
+  // -----------------------------
   initDevices() {
     this.initExistingDevices()
       .then(this.discoverDevices.bind(this))
@@ -108,7 +110,9 @@ class Service {
     })
   }
 
-  // HELPERS --------------
+  // -----------------------------
+  // HELPERS ---------------------
+  // -----------------------------
   notifyParentOfDeviceChanges() {
     if (this.application && typeof this.application.onDevicesUpdate === 'function') {
       this.application.onDevicesUpdate()
@@ -119,9 +123,15 @@ class Service {
     this.shouldUpdateDevices = true
   }
 
-  // ACTIONS --------------
-  performAction({ action = '', duration, stagger, devices, params = {} } = {}) {
+  // -----------------------------
+  // ACTIONS ---------------------
+  // -----------------------------
+  performAction({ action = '', duration, stagger, device, params = {} } = {}) {
     return new Promise((resolve, reject) => {
+      let devices = null
+      if (device && !Array.isArray(device)) {
+        devices = [device]
+      }
       const actionDevices = devices || this.devices
       // Keep track of how many lights we're trying to modify
       let completeCount = 0
@@ -174,6 +184,9 @@ class Service {
     return obj
   }
 
+  // -----------------------------
+  // DATA ------------------------
+  // -----------------------------
   saveDevices({ override } = {}) {
     return new Promise((resolve, reject) => {
       const saveProcess = (callback) => {
@@ -195,10 +208,6 @@ class Service {
               devices = [...data.devices, ...this.simpleDevices]
             }
             devices = Util.Array.removeDuplicates({ array: devices, prop: ['ip', 'id'] })
-            const validIDs = devices.map(device => device.id)
-            const currentIDs = Object.keys(this.deviceMap)
-            const invalidIDs = Util.Array.difference({ array1: currentIDs, array2: validIDs })
-            Util.Object.removeKeysFromObject({ object: this.deviceMap, keys: invalidIDs })
             debug(`Saving ${devices.length} devices to ${this.fileName}.json`)
             Util.FileIO.saveToDataFile({ fileName: this.fileName, key: 'devices', data: devices })
               .then(resolver)

@@ -39,16 +39,15 @@ class LifxBulb extends Device {
     return newVal
   }
 
-  power({ duration, on = true } = {}) {
-    duration ? null : duration = this.defaultTransition
+  power(on) {
     return new Promise((resolve, reject) => {
       if (this.bulb) {
         if (on && typeof this.bulb.on === 'function') {
           debug('Turning on', this.name, this.id, this.ip)
-          this.bulb.on(duration, resolve)
+          this.bulb.on(this.defaultTransition, resolve)
         } else if (typeof this.bulb.off === 'function') {
           debug('Turning off', this.name, this.id, this.ip)
-          this.bulb.off(duration, resolve)
+          this.bulb.off(this.defaultTransition, resolve)
         } else {
           debug(`The bulb in "${this.name}" did not initialize. Aborting...`)
           reject({ error: `Light ${this.id} did not initialize` })
@@ -59,27 +58,25 @@ class LifxBulb extends Device {
     })
   }
 
-  colorRGB({ duration, red = 255, green = 255, blue = 255 } = {}) {
-    duration ? null : duration = this.defaultTransition
+  colorRGB({ red = 255, green = 255, blue = 255 } = {}) {
     return new Promise((resolve, reject) => {
       if (this.bulb) {
         debug('Changing color', light.name, this.id, this.ip)
-        this.bulb.colorRgb(red, green, blue, duration, resolve)
+        this.bulb.colorRgb(red, green, blue, this.defaultTransition, resolve)
       } else {
         reject({ error: `Light ${id} does not exist` })
       }
     })
   }
 
-  color({hue, saturation, brightness, kelvin, duration, callback}) {
-    duration ? null : duration = this.defaultTransition
+  color({ hue, saturation, brightness, kelvin }) {
     return new Promise((resolve) => {
       this.bulb.getState((state) => {
         hue = hue ? self.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.hue
         saturation = saturation ? self.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.saturation
         brightness = brightness ? self.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.brightness
         kelvin = kelvin ? self.maxMin({ min: 2500, max: 9000, name: 'kelvin', value: kelvin }) : state.kelvin
-        light.color(hue, saturation, brightness, kelvin, duration, resolve)
+        light.color(hue, saturation, brightness, kelvin, this.defaultTransition, resolve)
       })
     })
   }

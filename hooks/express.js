@@ -46,7 +46,7 @@ class Express extends Hook {
 
   onPost({ req, res, next }) {
     const { service, device, action } = req.params
-    const { token, ...body } = req.body
+    const { token, value } = req.body
     debug('Post request received:', `service "${service}", device "${device || 'all'}", action "${action}"`)
 
     // Security -- ensure token is correct before performing task
@@ -63,7 +63,7 @@ class Express extends Hook {
     if (service && myService) {
       const myAction = myService.actions[action]
       if (typeof myAction === 'function') {
-        const params = { id: device, ...body }
+        const params = { device, value }
         try {
           myAction(params).then(() => {
             res.json({ success: true })

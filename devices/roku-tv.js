@@ -60,7 +60,7 @@ class RokuTV extends Device {
     })
   }
 
-  power({ on = true } = {}) {
+  power(on) {
     return new Promise((resolve, reject) => {
       this.info().then(info => {
         const powerMode = info['device-info']['power-mode']

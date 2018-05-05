@@ -35,6 +35,15 @@ class IDUtil {
     const mac = arrays.join(':')
     return mac
   }
+
+  hash(str) {
+    var hash = 0
+    for (let i = 0; i < str.length; i++) {
+      let char = str.charCodeAt(i)
+      hash = char + (hash << 6) + (hash << 16) - hash
+    }
+    return Math.abs(hash)
+  }
 }
 
 module.exports = new IDUtil()

@@ -9,7 +9,7 @@ const Util = require('../../util')
  */
 class Device {
   constructor({ id = '', name = '', ip = '', type }) {
-    this.id = id || Util.ID.guidMac()
+    this.id = id || Util.ID.hash(name)
     this.name = name
     this.ip = ip
     this.type = type || Device.generic

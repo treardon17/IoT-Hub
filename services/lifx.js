@@ -32,7 +32,6 @@ class LifxService extends Service {
       if (!error) {
         let bulb = new LifxBulb({ ip: light.address, name: label, bulb: light })
         bulb.parentService = this
-        delete this.deviceMap[bulb.id]
         this.deviceMap[bulb.id] = bulb
         this.saveDevices()
         this.setShouldUpdateDevices()
@@ -54,22 +53,20 @@ class LifxService extends Service {
     }
   }
 
-  power({ duration, on = true, stagger = 0 } = {}) {
+  power({ device, value }) {
     return this.performAction({
-      duration,
-      stagger,
+      duration: this.defaultTransition,
+      device,
       action: 'power',
-      stagger, 
-      params: { on }
+      params: value
     })
   }
 
-  color({ id, duration, stagger, red, green, blue } = {}) {
+  color({ device, red, green, blue } = {}) {
     return this.performAction({
-      duration,
-      stagger,
+      duration: this.defaultTransition,
+      device,
       action: 'color',
-      stagger,
       params: { red, green, blue }
     })
   }

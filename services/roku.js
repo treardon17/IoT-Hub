@@ -34,8 +34,8 @@ class RokuService extends Service {
               tv.parentService = this
               this.deviceMap[id] = tv
               checkResolve()
-            }).catch((reject) => {
-              console.log('here')
+            }).catch((error) => {
+              reject(error)
             })
           })
         })
