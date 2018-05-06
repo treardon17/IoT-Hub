@@ -132,7 +132,7 @@ class Service {
           }).catch(reject)
         }
       } else {
-        debug('Skip loading devices from file')
+        debug(`"${this.name}", Skip loading devices from file`)
         resolve()
       }
     })

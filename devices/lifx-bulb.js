@@ -21,6 +21,7 @@ class LifxBulb extends Device {
       color: new Action({
         desc: "Change color of lights",
         execute: this.color.bind(this),
+        status: this.getColorState.bind(this),
         type: Action.types.hue
       })
     }
@@ -68,6 +69,12 @@ class LifxBulb extends Device {
         const powerState = state.power ? true : false
         resolve(powerState)
       }).catch(reject)
+    })
+  }
+
+  getColorState() {
+    return new Promise((resolve, reject) => {
+      resolve()
     })
   }
 

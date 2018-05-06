@@ -8,13 +8,13 @@ const { Accessory, Service, Characteristic, Bridge, uuid } = HAPNodeJS
 const qrcode = require('qrcode-terminal')
 const Device = require('../core/types/device')
 const Action = require('../core/types/action')
-const LifxBulb = require('../devices/lifx-bulb')
 
 class HomeKit extends Hook {
   constructor() {
     super()
-    this.username = 'CC:22:3D:E3:CE:F1'
+    this.username = 'CC:22:3D:E3:CE:F6'
     this.pincode = '031-45-154'
+    this.port = 51826
     this.accessoryMap = {}
     this.setDeviceMappings()
     this.setActionMappings()
@@ -51,7 +51,7 @@ class HomeKit extends Hook {
     // Publish the Bridge on the local network.
     this.bridge.publish({
       username: this.username,
-      port: 51826,
+      port: this.port,
       pincode: this.pincode,
       category: Accessory.Categories.BRIDGE
     })
@@ -61,7 +61,9 @@ class HomeKit extends Hook {
 
   printData() {
     return new Promise((resolve) => {
-      qrcode.generate(this.bridge.setupURI(), (qrcode) => {
+      const uri = this.bridge.setupURI()
+      debug('Homekit URI is', uri)
+      qrcode.generate(uri, (qrcode) => {
         console.log('///////////////////////////////////////////////////////')
         console.log('///////////////////////////////////////////////////////')
         console.log('----------------------- HomeKit -----------------------')
@@ -70,6 +72,7 @@ class HomeKit extends Hook {
         console.log(qrcode)
         console.log('--- Username is: ', this.username)
         console.log('--- Pincode is:  ', this.pincode)
+        console.log('--- Port is:     ', this.port)
         resolve()
       })
     })
@@ -119,54 +122,17 @@ class HomeKit extends Hook {
       return
     }
     this.bridge.addBridgedAccessory(accessory)
-
-    
-    // accessory
-    // .addService(Service.Lightbulb, device.name)
-    // .getCharacteristic(Characteristic.On)
-    // .on('set', (value, callback) => {
-    //   this.application.services.Roku.power({ on: value })
-    //   callback()
-    // })
-    
-    // accessory
-    //   .getService(Service.Lightbulb)
-    //   .getCharacteristic(Characteristic.ColorTemperature)
-    //   .on('set', (value, callback) => {
-    //     console.log('setting value to', value)
-    //     callback()
-    //   })
-
-    // accessory
-    //   .getService(Service.Lightbulb)
-    //   .getCharacteristic(Characteristic.Hue)
-    //   .on('set', (value, callback) => {
-    //     console.log('setting value to', value)
-    //     callback()
-    //   })
-
-    // accessory
-    //   .getService(Service.Lightbulb)
-    //   .getCharacteristic(Characteristic.On)
-    //   .on('get', function (callback) {
-    //     var err = null // in case there were any problems
-    //     const isOn = false
-    //     if (isOn) {
-    //       callback(err, true)
-    //     }
-    //     else {
-    //       callback(err, false)
-    //     }
-    //   })
   }
 
   // ----------------------------
-  // LIFECYCLE HOOKS ------------
+  // LIFECYCLE METHODS ----------
   // ----------------------------
   devicesChanged({ newDevices }) {
     if (newDevices && newDevices.length > 0) {
+      debug('New devices found:', newDevices.length)
       newDevices.forEach((device) => {
         if (!this.accessoryMap[device.id]) {
+          debug('Adding device to HomeKit', device.name)
           this.addDevice(device)
         }
       })

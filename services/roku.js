@@ -21,18 +21,17 @@ class RokuService extends Service {
           let resolveCount = 0
           const checkResolve = () => {
             resolveCount += 1
-            if (resolveCount === ips.length - 1) {
+            if (resolveCount === ips.length) {
               this.setShouldUpdateDevices()
               resolve()
             }
           }
           
           ips.forEach((ip, index) => {
-            const id = Util.ID.guidMac()
-            const tv = new RokuTV({ id, ip, name: `Roku-${index}` })
+            const tv = new RokuTV({ ip, name: `Roku-${index}` })
             tv.setExtraInfo().then(() => {
               tv.parentService = this
-              this.deviceMap[id] = tv
+              this.deviceMap[tv.id] = tv
               checkResolve()
             }).catch((error) => {
               reject(error)

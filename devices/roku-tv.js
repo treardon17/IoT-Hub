@@ -22,11 +22,15 @@ class RokuTV extends Device {
       power: new Action({
         desc: 'Toggle power of TV',
         execute: this.power.bind(this),
+        status: this.getPowerState.bind(this),
         type: Action.types.switch
       })
     }
   }
 
+  // ------------------------
+  // HELPER FUNCTIONS -------
+  // ------------------------
   setExtraInfo() {
     return this.info().then(info => {
       this.mac = (info['device-info']['wifi-mac'] || '').toUpperCase()
@@ -60,6 +64,9 @@ class RokuTV extends Device {
     })
   }
 
+  // ------------------------
+  // ACTIONS ----------------
+  // ------------------------
   power(on) {
     return new Promise((resolve, reject) => {
       this.info().then(info => {
@@ -67,15 +74,45 @@ class RokuTV extends Device {
         // If the display is off, and we want to turn on the tv
         if (on && powerMode !== 'PowerOn') {
           this.powerKey()
+            .then(resolve)
+            .catch(reject)
         } else if (!on && powerMode === 'PowerOn') {
           // The TV display is on, and we want to turn it off
           this.powerKey()
+            .then(resolve)
+            .catch(reject)
         }
       }).catch(error => {
        debug('error', error)
         // The TV is off, so we need to wake it up
         if (error.timeout && on) {
           this.wakeup()
+            .then(resolve)
+            .catch(reject)
+        }
+      })
+    })
+  }
+
+  // ------------------------
+  // GETTERS ----------------
+  // ------------------------
+  getPowerState() {
+    return new Promise(resolve => {
+      this.info().then(info => {
+        const powerMode = info['device-info']['power-mode']
+        // If the display is off
+        if (powerMode !== 'PowerOn') {
+          resolve(false)
+        } else if (powerMode === 'PowerOn') {
+          // The TV display is on
+          resolve(true)
+        }
+      }).catch(error => {
+        debug('error', error)
+        // The TV is off
+        if (error.timeout) {
+          resolve(false)
         }
       })
     })

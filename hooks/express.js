@@ -89,6 +89,11 @@ class Express extends Hook {
   onGet({ req, res, next }) {
     const { service, device, action } = req.params
   }
+
+  // ----------------------------
+  // LIFECYCLE METHODS ----------
+  // ----------------------------
+  devicesChanged() { }
 }
 
 module.exports = Express
