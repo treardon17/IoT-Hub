@@ -1,5 +1,5 @@
-const debug = require('debug')('App')
 const Util = require('../util')
+const debug = Util.Log('App')
 const Device = require('../core/types/device')
 const Config = require('../config')
 const _ = require('lodash')

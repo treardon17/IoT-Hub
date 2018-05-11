@@ -1,4 +1,5 @@
-const debug = require('debug')('Device:RokuTV')
+const Util = require('../util')
+const debug = Util.Log('Device:RokuTV')
 const Device = require('../core/types/device')
 var parser = require('xml2json')
 const wol = require('wake_on_lan')

@@ -1,4 +1,5 @@
-const debug = require('debug')('Hook:Express')
+const Util = require('../util')
+const debug = Util.Log('Hook:Express')
 const Hook = require('../core/types/hook')
 const express = require('express')
 const bodyParser = require('body-parser')

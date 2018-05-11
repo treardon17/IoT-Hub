@@ -1,4 +1,5 @@
-const debug = require('debug')('Action')
+const Util = require('../../util')
+const debug = Util.Log('Action')
 
 class Action {
   constructor({ execute, status, desc, type } = {}) {

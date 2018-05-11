@@ -1,5 +1,5 @@
-const debug = require('debug')('Device')
 const Util = require('../../util')
+const debug = Util.Log('Device')
 
 /**
  * 

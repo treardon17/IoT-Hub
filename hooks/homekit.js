@@ -1,4 +1,5 @@
-const debug = require('debug')('Hook:Homekit')
+const Util = require('../util')
+const debug = Util.Log('Hook:Homekit')
 const HAPNodeJS = require('hap-nodejs')
 const Hook = require('../core/types/hook')
 const fs = require('fs')

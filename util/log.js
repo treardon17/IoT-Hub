@@ -13,7 +13,7 @@ Log = (name, message, type) => {
         if (type === 'error') { marker = '!' }
         const date = new Date()
         const dateString = `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}-${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}_${date.getMilliseconds()}ms`
-        const outputString = `${marker}${name}: ${dateString} -- ${message}`
+        const outputString = `${marker}${name}\t\t\t\t${dateString}\t\t\t${message}`
         FileIO.appendToFile({ filePath, fileName, output: outputString })
           .then(resolve)
           .catch(reject)
@@ -25,7 +25,7 @@ Logger = (name) => {
   const debug = require('debug')(name)
   return (message, type) => {
     let typeMessage = ''
-    if (type) {
+    if (type && typeof type === 'string') {
       typeMessage = `**${type.toUpperCase()}**`
     }
     debug(typeMessage, message)

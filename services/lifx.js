@@ -1,7 +1,8 @@
 const Service = require('../core/types/service')
 const LifxBulb = require('../devices/lifx-bulb')
 const LifxClient = require('node-lifx').Client
-const debug = require('debug')('Service:LifxService')
+const Util = require('../util')
+const debug = Util.Log('Service:LifxService')
 
 class LifxService extends Service {
   constructor() {

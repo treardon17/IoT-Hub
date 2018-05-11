@@ -1,4 +1,5 @@
-const debug = require('debug')('Device:LifxBulb')
+const Util = require('../util')
+const debug = Util.Log('Device:LifxBulb')
 const Device = require('../core/types/device')
 const Action = require('../core/types/action')
 

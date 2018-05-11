@@ -1,4 +1,5 @@
-const debug = require('debug')('Manager:Task')
+const Util = require('../../util')
+const debug = Util.Log('Manager:Task')
 const Task = require('../types/task')
 
 class TaskManager {

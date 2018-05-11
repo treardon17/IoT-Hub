@@ -1,4 +1,5 @@
-const debug = require('debug')('Task')
+const Util = require('../../util')
+const debug = Util.Log('Task')
 
 /**
  * 
