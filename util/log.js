@@ -5,13 +5,14 @@ const stringLength = 22
 
 Log = (name, message) => {
   return new Promise((resolve, reject) => {
+    const date = new Date()
+    const today = `${date.getMonth()}_${date.getDay()}_${date.getFullYear()}`
     const filePath = path.resolve(__dirname, `../logs`)
-    const fileName = 'log.txt'
+    const fileName = `log_${today}.txt`
     const fullPath = `${filePath}/${fileName}`
     FileIO.createFilePath({ filePath: fullPath })
       .then(() => {
-        const date = new Date()
-        const dateString = `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}-${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}_${date.getMilliseconds()}ms`
+        const dateString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}_${date.getMilliseconds()}ms`
         const outputString = `${dateString}\t\t| ${name}\t${message}`
         FileIO.appendToFile({ filePath, fileName, output: outputString })
           .then(resolve)
