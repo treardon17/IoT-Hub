@@ -44,10 +44,15 @@ class HomeKit extends Hook {
     // Start by creating our Bridge which will host all loaded Accessories
     this.bridge = new Bridge('Node Bridge', uuid.generate('Node Bridged'))
     // Listen for bridge identification event
-    this.bridge.on('identify', (paired, callback) => {
-      debug('Node Bridge identify')
-      callback()
-    })
+    this.bridge.on('identify', this.onIdentify.bind(this))
+    this.bridge.on('listening', this.onListening.bind(this));
+    this.bridge.on('identify', this.handleIdentify.bind(this));
+    this.bridge.on('pair', this.handlePair.bind(this));
+    this.bridge.on('unpair', this.handleUnpair.bind(this));
+    this.bridge.on('accessories', this.handleAccessories.bind(this));
+    this.bridge.on('get-characteristics', this.handleGetCharacteristics.bind(this));
+    this.bridge.on('set-characteristics', this.handleSetCharacteristics.bind(this));
+    this.bridge.on('session-close', this.handleSessionClose.bind(this));
 
     // Publish the Bridge on the local network.
     this.bridge.publish({
@@ -58,6 +63,35 @@ class HomeKit extends Hook {
     })
 
     this.printData()
+  }
+
+  onIdentify(paired, callback) {
+    debug('Identified bridge')
+    callback()
+  }
+  onListening() {
+    debug('Bridge listening')
+  }
+  handleIdentify() {
+    debug('Bridge identified')
+  }
+  handlePair() {
+    debug('Bridge paired')
+  }
+  handleUnpair() {
+    debug('Bridge unpaired')
+  }
+  handleAccessories() {
+    debug('Bridge handle accessories')
+  }
+  handleGetCharacteristics() {
+    debug('Bridge get characteristics')
+  }
+  handleSetCharacteristics() {
+    debug('Bridge set characteristics')
+  }
+  handleSessionClose() {
+    debug('Bridge session closed')
   }
 
   printData() {
