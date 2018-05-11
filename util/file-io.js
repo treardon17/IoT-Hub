@@ -1,4 +1,5 @@
 const path = require('path')
+var os = require("os")
 const mkdirp = require('mkdirp')
 const isJSON = require('is-json')
 const fs = require('fs-extra')
@@ -76,6 +77,23 @@ class FileIO {
           }
         })
         .catch(reject)
+    })
+  }
+
+  appendToFile({ filePath, fileName, output }) {
+    return new Promise((resolve, reject) => {
+      this.createFilePath({ filePath })
+        .then(() => {
+          const fullPath = path.resolve(filePath, fileName)
+          const fileExists = fs.existsSync(fullPath)
+          if (!fileExists) {
+            fs.openSync(fullPath, 'w');
+          }
+          fs.appendFile(fullPath, `${output}${os.EOL}`, (err) => {
+            if (err) { reject() }
+            else { resolve() }
+          })
+        })
     })
   }
 }
