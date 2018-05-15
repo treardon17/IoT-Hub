@@ -36,8 +36,8 @@ class TaskManager {
     })
   }
 
-  createTask({ name, description, save } = {}) {
-    const task = new Task({ id: Util.ID.hash(name), name, description })
+  createTask({ name, description, save, actions } = {}) {
+    const task = new Task({ id: Util.ID.guid(), name, description, actions })
     this.taskMap[task.id] = task
 
     if (save) {
