@@ -5,8 +5,7 @@ class Action {
   constructor({ execute, status, desc, type } = {}) {
     if (!execute || typeof execute !== 'function') { debug('Action must have a "execute" --> function returning a promise') }
     if (!status || typeof status !== 'function') { debug('Action must have a "status" --> function returning a promise') }
-    if (!desc) { debug('Action must have a "description"') }
-    if (!type) { debug('Action must have a "type"') }
+    if (!type) { debug('Action must have an action "type"') }
 
     this.execute = execute
     this.status = status
