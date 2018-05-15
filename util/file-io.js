@@ -15,9 +15,14 @@ class FileIO {
 
   readFile({ filePath }) {
     return new Promise((resolve, reject) => {
-      fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
-        err ? reject(err) : resolve(data)
-      });
+      const exists = fs.existsSync(filePath)
+      if (exists) {
+        fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
+          err ? reject(err) : resolve(data)
+        });
+      } else {
+        reject('File does not exist')
+      }
     })
   }
 
@@ -54,12 +59,16 @@ class FileIO {
           key ? newData[key] = data : newData = data
           this.writeFile({ filePath, data: newData })
             .then(resolve)
-            .catch(reject)
+            .catch((error) => {
+              reject(error)
+            })
         }).catch(() => {
           const newData = key ? { [key]: data } : data
           this.writeFile({ filePath, data: newData })
             .then(resolve)
-            .catch(reject)
+            .catch((error) => {
+              reject(error)
+            })
         })
     })
   }

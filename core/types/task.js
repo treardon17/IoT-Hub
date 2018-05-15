@@ -8,11 +8,15 @@ const debug = Util.Log('Task')
  * A Task is a series of instructions to be executed
  */
 class Task {
-  constructor({ id, name, description }) {
+  constructor({ id, name, description, instructions }) {
+    if (!id) { debug('Task must have an ID') }
+    if (!name) { debug('Task must have a name')}
+
     this.id = id
     this.name = name
+    this.fileName = `task-${this.name}`
     this.description = description
-    this.instructions = []
+    this.instructions = instructions || []
   }
   
   addInstruction({ service, device, action, params }) {

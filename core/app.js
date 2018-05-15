@@ -2,6 +2,7 @@ const Util = require('../util')
 const debug = Util.Log('App')
 const Device = require('../core/types/device')
 const Config = require('../config')
+const TaskManager = require('../core/managers/task-manager')
 const _ = require('lodash')
 
 class App {
@@ -10,6 +11,8 @@ class App {
     this.shouldUpdateDevices = false
     this.setupDebounce()
     this.initialize()
+
+    TaskManager.createTask({ name: 'lights', description: 'turn on the lights', save: true })
   }
 
   setupDebounce() {
