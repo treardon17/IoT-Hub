@@ -67,12 +67,12 @@ class Express extends Hook {
         .then(() => {
           res.json({ success: true })
         })
-        .catch(() => {
+        .catch((error) => {
           res.status(500).json({ success: false, error })
         })
     } else {
       debug('No devices from', `service ${service}`, `devices ${devices}`)
-      res.status(400).json({ success: false, error })
+      res.status(400).json({ success: false, error: 'No devices found' })
     }
   }
 
