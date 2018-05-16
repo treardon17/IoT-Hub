@@ -4,8 +4,8 @@ const Device = require('../core/types/device')
 const Action = require('../core/types/action')
 
 class LifxBulb extends Device {
-  constructor({ id, ip, name, bulb = null }) {
-    super({ id, ip, name, type: Device.types.light })
+  constructor({ id, ip, name, bulb = null, parentService }) {
+    super({ id, ip, name, type: Device.types.light, parentService })
     this.bulb = bulb
     this.lightState = {}
     this.defaultTransition = 2000

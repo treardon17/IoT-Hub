@@ -7,8 +7,8 @@ const axios = require('axios')
 const Action = require('../core/types/action')
 
 class RokuTV extends Device {
-  constructor({ id, name, ip, mac }) {
-    super({ id, name, ip, type: Device.types.tv })
+  constructor({ id, name, ip, mac, parentService }) {
+    super({ id, name, ip, type: Device.types.tv, parentService })
     this.mac = (mac || '').toUpperCase()
     this.port = 8060
     this.setExtraInfo()

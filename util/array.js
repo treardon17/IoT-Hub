@@ -7,15 +7,15 @@ class ArrayUtil {
     }
     return array.filter((obj, pos, arr) => arr.map(mapObj => mapObj[property]).indexOf(obj[property]) === pos)
   }
-
-  intersection({ array1, array2 }) {
-    return array1.filter(x => array2.includes(x))
+  intersection({ array1, array2 }){
+    return array1.filter(n => array2.indexOf(n) !== -1)
   }
-
+  union({ array1, array2 }){
+    return [...new Set([...array1, ...array2])]
+  }  
   difference({ array1, array2 }) {
     return array1.filter(x => !array2.includes(x))
   }
-
   symmetricDifference({ array1, array2 }) {
     return array1
       .filter(x => !array2.includes(x))

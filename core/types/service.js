@@ -125,7 +125,7 @@ class Service {
             if (data.devices) {
               data.devices.forEach((device) => {
                 debug('Creating device from existing data -- id:', device.id)
-                this.deviceMap[device.id] = new this.deviceClass(device)
+                this.deviceMap[device.id] = new this.deviceClass({ parentService: this, ...device })
               })
             }
             resolve()

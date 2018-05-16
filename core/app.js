@@ -12,7 +12,7 @@ class App {
     this.setupDebounce()
     this.initialize()
 
-    TaskManager.createTask({ name: 'lights', description: 'turn on the lights', save: true })
+    // TaskManager.createTask({ name: 'lights', description: 'turn on the lights', save: true })
   }
 
   setupDebounce() {
@@ -43,6 +43,15 @@ class App {
 
   get previousDevices() {
     return this._prevDevices || []
+  }
+
+  getDevicesOfService(service) {
+    return this.devices.filter(device => {
+      const parentName = Util.Object.getNestedElement({ obj: device, keys: ['parentService', 'name'] })
+      if (parentName === service) {
+        return device
+      }
+    })
   }
 
   getDevicesOfType(type) {

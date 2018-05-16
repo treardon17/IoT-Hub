@@ -31,8 +31,7 @@ class LifxService extends Service {
   onNewLight(light) {
     light.getLabel((error, label) => {
       if (!error) {
-        let bulb = new LifxBulb({ ip: light.address, name: label, bulb: light })
-        bulb.parentService = this
+        let bulb = new LifxBulb({ ip: light.address, name: label, bulb: light, parentService: this })
         this.deviceMap[bulb.id] = bulb
         this.saveDevices()
         this.setShouldUpdateDevices()
