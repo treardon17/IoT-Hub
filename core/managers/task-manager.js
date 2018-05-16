@@ -106,6 +106,28 @@ class TaskManager {
       })
     })
   }
+
+  performTask(taskID) {
+    return new Promise((resolve, reject) => {
+      const task = this.taskMap[taskID]
+      if (task) {
+        const { actions } = task
+        // Keep track of how many lights we're trying to modify
+        let completeCount = 0
+        const checkResovle = () => {
+          completeCount += 1
+          if (completeCount === actions.length - 1) { resolve() }
+        }
+        actions.forEach(action => {
+          this.performAction(action)
+            .then(checkResovle)
+            .catch(reject)
+        })
+      } else {
+        reject({ error: `Invalid task. ${taskID} does not exist in the taskMap` })
+      }
+    })
+  }
 }
 
 module.exports = new TaskManager()
