@@ -3,6 +3,7 @@ const debug = Util.Log('Hook:Express')
 const Hook = require('../core/types/hook')
 const express = require('express')
 const bodyParser = require('body-parser')
+const TaskManager = require('../core/managers/task-manager')
 
 class Express extends Hook {
   constructor({ token = null }) {
@@ -59,30 +60,18 @@ class Express extends Hook {
       debug('Token valid')
     }
 
-    const myService = this.application.services[service]
-    // We are secure now, so
-    if (service && myService) {
-      const myAction = myService.actions[action]
-      if (typeof myAction === 'function') {
-        const params = { device, value }
-        try {
-          myAction(params).then(() => {
-            res.json({ success: true })
-          }).catch((error) => {
-            res.status(500).json({ success: false, error })
-          })
-        } catch(error) {
-          debug(`Action "${action}" in ${service} does not return a promise. Actions must return a promise.`, error)
-          res.json({ success: true, error: 'Skipping resolve due to function not returning promise.' })
-        }
-      } else {
-        const error = `Action "${action}" in ${service} is not a valid action.`
-        debug(error)
-        res.status(400).json({ success: false, error })
-      }
+    const devices = device || this.application.getDevicesOfService(service)
+
+    if (devices.length > 0) {
+      TaskManager.performAction({ action, devices, params: value })
+        .then(() => {
+          res.json({ success: true })
+        })
+        .catch(() => {
+          res.status(500).json({ success: false, error })
+        })
     } else {
-      const error = `Service "${service}" does not exist.`
-      debug(error)
+      debug('No devices from', `service ${service}`, `devices ${devices}`)
       res.status(400).json({ success: false, error })
     }
   }

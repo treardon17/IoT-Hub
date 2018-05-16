@@ -51,7 +51,6 @@ class ObjectUtil {
     } else if (typeof keys === 'string') {
       tempEl = tempEl[key]
     }
-    console.log(tempEl)
     return tempEl
   }
 }

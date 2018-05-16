@@ -151,47 +151,47 @@ class Service {
     this.shouldUpdateDevices = true
   }
 
-  // -----------------------------
-  // ACTIONS ---------------------
-  // -----------------------------
-  performAction({ action = '', duration, stagger, device, params = {} } = {}) {
-    return new Promise((resolve, reject) => {
-      let devices = null
-      if (device && !Array.isArray(device)) {
-        devices = [device]
-      }
-      const actionDevices = devices || this.devices
-      // Keep track of how many lights we're trying to modify
-      let completeCount = 0
-      const checkResovle = () => {
-        completeCount += 1
-        if (completeCount === actionDevices.length - 1) { resolve() }
-      }
-      let staggerAmt = stagger
-      // If we're performing a valid action
-      // Perform that action on every light
-      actionDevices.forEach((device) => {
-        debug(`Performing ${action} on ${device.id}`)
-        try {
-          const deviceActions = device.actions
-          if (deviceActions[action]) {
-            setTimeout(() => {
-              deviceActions[action]
-                .execute(params)
-                .then(checkResovle)
-                .catch(reject)
-              staggerAmt += stagger
-            }, staggerAmt)
-          } else {
-            throw `${action} not found in ${device.name}'s actions`
-          }
-        } catch (error) {
-          debug(error)
-          reject(error)
-        }
-      })
-    })
-  }
+  // // -----------------------------
+  // // ACTIONS ---------------------
+  // // -----------------------------
+  // performAction({ action = '', duration, stagger, device, params = {} } = {}) {
+  //   return new Promise((resolve, reject) => {
+  //     let devices = null
+  //     if (device && !Array.isArray(device)) {
+  //       devices = [device]
+  //     }
+  //     const actionDevices = devices || this.devices
+  //     // Keep track of how many lights we're trying to modify
+  //     let completeCount = 0
+  //     const checkResovle = () => {
+  //       completeCount += 1
+  //       if (completeCount === actionDevices.length - 1) { resolve() }
+  //     }
+  //     let staggerAmt = stagger
+  //     // If we're performing a valid action
+  //     // Perform that action on every light
+  //     actionDevices.forEach((device) => {
+  //       debug(`Performing ${action} on ${device.id}`)
+  //       try {
+  //         const deviceActions = device.actions
+  //         if (deviceActions[action]) {
+  //           setTimeout(() => {
+  //             deviceActions[action]
+  //               .execute(params)
+  //               .then(checkResovle)
+  //               .catch(reject)
+  //             staggerAmt += stagger
+  //           }, staggerAmt)
+  //         } else {
+  //           throw `${action} not found in ${device.name}'s actions`
+  //         }
+  //       } catch (error) {
+  //         debug(error)
+  //         reject(error)
+  //       }
+  //     })
+  //   })
+  // }
 
   // -----------------------------
   // DATA ------------------------

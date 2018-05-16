@@ -65,6 +65,47 @@ class TaskManager {
         })
     })
   }
+
+  // -----------------------------
+  // ACTIONS ---------------------
+  // -----------------------------
+  performAction({ action = '', stagger, devices, params = {} } = {}) {
+    return new Promise((resolve, reject) => {
+      let myDevices = devices
+      if (!Array.isArray(devices)) {
+        myDevices = [devices]
+      }
+      // Keep track of how many lights we're trying to modify
+      let completeCount = 0
+      const checkResovle = () => {
+        completeCount += 1
+        if (completeCount === myDevices.length - 1) { resolve() }
+      }
+      let staggerAmt = stagger
+      // If we're performing a valid action
+      // Perform that action on every light
+      myDevices.forEach((device) => {
+        debug(`Performing ${action} on ${device.id}`)
+        try {
+          const deviceActions = device.actions
+          if (deviceActions[action]) {
+            setTimeout(() => {
+              deviceActions[action]
+                .execute(params)
+                .then(checkResovle)
+                .catch(reject)
+              staggerAmt += stagger
+            }, staggerAmt)
+          } else {
+            throw `${action} not found in ${device.name}'s actions`
+          }
+        } catch (error) {
+          debug(error)
+          reject(error)
+        }
+      })
+    })
+  }
 }
 
 module.exports = new TaskManager()
