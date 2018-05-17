@@ -9,10 +9,9 @@ class App {
   constructor() {
     this.services = {}
     this.shouldUpdateDevices = false
+    this.taskManager = new TaskManager({ application: this })
     this.setupDebounce()
     this.initialize()
-
-    // TaskManager.createTask({ name: 'lights', description: 'turn on the lights', save: true })
   }
 
   setupDebounce() {

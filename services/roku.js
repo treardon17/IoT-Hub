@@ -29,7 +29,6 @@ class RokuService extends Service {
           
           ips.forEach((ip, index) => {
             const append = index > 0 ? index : ''
-            console.log('parent is', this)
             const tv = new RokuTV({ ip, name: `TV${append}`, parentService: this })
             tv.setExtraInfo().then(() => {
               this.deviceMap[tv.id] = tv

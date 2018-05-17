@@ -3,7 +3,6 @@ const debug = Util.Log('Hook:Express')
 const Hook = require('../core/types/hook')
 const express = require('express')
 const bodyParser = require('body-parser')
-const TaskManager = require('../core/managers/task-manager')
 
 class Express extends Hook {
   constructor({ token = null }) {
@@ -63,7 +62,7 @@ class Express extends Hook {
     const devices = device || this.application.getDevicesOfService(service)
 
     if (devices.length > 0) {
-      TaskManager.performAction({ action, devices, params: value })
+      this.application.taskManager.performAction({ action, devices, params: value })
         .then(() => {
           res.json({ success: true })
         })

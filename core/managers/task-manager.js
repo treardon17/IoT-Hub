@@ -3,16 +3,17 @@ const debug = Util.Log('Manager:Task')
 const Task = require('../types/task')
 
 class TaskManager {
-  constructor() {
+  constructor({ application }) {
+    this.application = application
     this.taskMap = {}
     this.fileName = 'task-manager'
-    this.init()
-  }
-
-  init() {
     this.initTasks().catch(() => { debug('Task file does not exist') })
   }
 
+  /**
+   * Initializes the tasks from the tasks file
+   * creates the taskMap
+   */
   initTasks() {
     debug('Initializing tasks')
     return new Promise((resolve, reject) => {
@@ -36,6 +37,13 @@ class TaskManager {
     })
   }
 
+  /**
+   * 
+   * @param { name } string the name of the task
+   * @param { description } string what the task does
+   * @param { save } bool whether or not to save the task to the json file. if this is set to true, the function will return a promise
+   * @param { actions } array an array of task actions. Look at `task.js` for more information.
+   */
   createTask({ name, description, save, actions } = {}) {
     const task = new Task({ id: Util.ID.guid(), name, description, actions })
     this.taskMap[task.id] = task
@@ -47,7 +55,25 @@ class TaskManager {
           .catch(reject)
       })
     }
+
     return task
+  }
+
+  /**
+   * 
+   * @param {id} string the id of the task to delete
+   * @param {save} bool whether or not to save the change to disk. will return a promise if set to true
+   */
+  deleteTask({ id, save } = {}) {
+    delete this.taskMap[id]
+    if (save) {
+      return new Promise((resolve, reject) => {
+        this.saveTasks()
+          .then(resolve)
+          .catch(reject)
+      })
+    }
+    return null
   }
 
   saveTasks() {
@@ -111,15 +137,20 @@ class TaskManager {
     return new Promise((resolve, reject) => {
       const task = this.taskMap[taskID]
       if (task) {
-        const { actions } = task
+        const { instructions } = task
         // Keep track of how many lights we're trying to modify
         let completeCount = 0
         const checkResovle = () => {
           completeCount += 1
-          if (completeCount === actions.length - 1) { resolve() }
+          if (completeCount === instructions.length - 1) { resolve() }
         }
-        actions.forEach(action => {
-          this.performAction(action)
+        instructions.forEach(instruction => {
+          const { service, action, params } = instruction
+          let { devices } = instruction
+          if (!devices && service) {
+            devices = this.application.getDevicesOfService(service)
+          }
+          this.performAction({ devices, action, params })
             .then(checkResovle)
             .catch(reject)
         })
@@ -130,4 +161,4 @@ class TaskManager {
   }
 }
 
-module.exports = new TaskManager()
+module.exports = TaskManager
