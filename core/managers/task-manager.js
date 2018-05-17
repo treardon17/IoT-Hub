@@ -172,8 +172,12 @@ class TaskManager {
       // Keep track of how many lights we're trying to modify
       let completeCount = 0
       const checkResovle = (device, status) => {
+        // If the status is what we're expecting
+        // then we're one device closer for the task being true
         if (status === expectedValue) { successCount += 1 }
         if (completeCount === myDevices.length - 1) {
+          // We've looked at all the devices
+          // this is the moment of truth
           resolve({
             successCount,
             totalChecked: myDevices.length,
@@ -215,6 +219,8 @@ class TaskManager {
         // Keep track of how many lights we're trying to modify
         let completeCount = 0
         const statusArray = []
+
+        // Checker to resolve the promise
         const checkResovle = (status) => {
           statusArray.push(status)
           if (completeCount === instructions.length - 1) {
@@ -229,6 +235,9 @@ class TaskManager {
           }
           completeCount += 1
         }
+        // Go through all the instructions,
+        // grab the devices, and check their status
+        // to see if this task is active
         instructions.forEach(instruction => {
           const { service, action, params } = instruction
           let { devices } = instruction
