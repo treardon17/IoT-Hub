@@ -42,13 +42,17 @@ class TaskManager {
    * @param { name } string the name of the task
    * @param { description } string what the task does
    * @param { save } bool whether or not to save the task to the json file. if this is set to true, the function will return a promise
-   * @param { actions } array an array of task actions. Look at `task.js` for more information.
+   * @param { instructions } array an array of task actions. Look at `task.js` for more information.
    */
-  createTask({ name, description, save, actions } = {}) {
-    const task = new Task({ id: Util.ID.guid(), name, description, actions })
-    this.taskMap[task.id] = task
-
+  createTask({ name, description, save, instructions } = {}) {
+    let myInstructions = instructions;
+    if (!Array.isArray(instructions)) {
+      myInstructions = [instructions]
+    }
+    const task = new Task({ id: Util.ID.guid(), name, description, instructions: myInstructions, application: this.application })
+    
     if (save) {
+      this.taskMap[task.id] = task
       return new Promise((resolve, reject) => {
         this.saveTasks()
           .then(() => { resolve(task) })
@@ -76,6 +80,10 @@ class TaskManager {
     return null
   }
 
+
+  // THIS IS BROKEN NOW BECAUSE THERE'S A CIRCULAR STRUCTURE.
+  // NEED TO ONLY SAVE THE NAME, DESCRIPTION, AND INSTRUCTIONS
+  // RATHER THAN EVERYTHING IN THE TASK MAP
   saveTasks() {
     return new Promise((resolve, reject) => {
       Util.FileIO.saveToDataFile({
@@ -89,170 +97,6 @@ class TaskManager {
         .catch((error) => {
           reject(error)
         })
-    })
-  }
-
-  // -----------------------------
-  // ACTIONS ---------------------
-  // -----------------------------
-  performAction({ action = '', stagger, devices, params = {} } = {}) {
-    return new Promise((resolve, reject) => {
-      let myDevices = devices
-      if (!Array.isArray(devices)) {
-        myDevices = [devices]
-      }
-      // Keep track of how many lights we're trying to modify
-      let completeCount = 0
-      const checkResovle = () => {
-        if (completeCount === myDevices.length - 1) { resolve() }
-        completeCount += 1
-      }
-      let staggerAmt = stagger
-      // If we're performing a valid action
-      // Perform that action on every light
-      myDevices.forEach((device) => {
-        debug(`Performing ${action} on ${device.id}`)
-        try {
-          const deviceActions = device.actions
-          if (deviceActions[action]) {
-            setTimeout(() => {
-              deviceActions[action]
-                .execute(params)
-                .then(checkResovle)
-                .catch(reject)
-              staggerAmt += stagger
-            }, staggerAmt)
-          } else {
-            throw `${action} not found in ${device.name}'s actions`
-          }
-        } catch (error) {
-          debug(error)
-          reject(error)
-        }
-      })
-    })
-  }
-
-  performTask(taskID) {
-    return new Promise((resolve, reject) => {
-      const task = this.taskMap[taskID]
-      if (task) {
-        const { instructions } = task
-        // Keep track of how many lights we're trying to modify
-        let completeCount = 0
-        const checkResovle = () => {
-          if (completeCount === instructions.length - 1) { resolve() }
-          completeCount += 1
-        }
-        instructions.forEach(instruction => {
-          const { service, action, params } = instruction
-          let { devices } = instruction
-          if (!devices && service) {
-            devices = this.application.getDevicesOfService(service)
-          }
-          this.performAction({ devices, action, params })
-            .then(checkResovle)
-            .catch(reject)
-        })
-      } else {
-        reject({ error: `Invalid task. ${taskID} does not exist in the taskMap` })
-      }
-    })
-  }
-
-  checkStatus({ devices, action, expectedValue }) {
-    return new Promise((resolve, reject) => {
-      let myDevices = devices
-      if (!Array.isArray(devices)) {
-        myDevices = [devices]
-      }
-      // Keep track of how many devices
-      // have the status we're looking for
-      let successCount = 0
-      // Keep track of how many lights we're trying to modify
-      let completeCount = 0
-      const checkResovle = (device, status) => {
-        // If the status is what we're expecting
-        // then we're one device closer for the task being true
-        if (status === expectedValue) { successCount += 1 }
-        if (completeCount === myDevices.length - 1) {
-          // We've looked at all the devices
-          // this is the moment of truth
-          resolve({
-            successCount,
-            totalChecked: myDevices.length,
-            success: successCount === myDevices.length
-          })
-        }
-        completeCount += 1
-      }
-      // If we're performing a valid action
-      // Perform that action on every light
-      myDevices.forEach((device) => {
-        debug(`Checking status of ${action} on ${device.id}`)
-        try {
-          const deviceActions = device.actions
-          if (deviceActions[action]) {
-            deviceActions[action]
-              .status()
-              .then((status) => {
-                debug(`${device.name} ${action} status: ${status}`)
-                checkResovle(device, status)
-              })
-              .catch(reject)
-          } else {
-            throw `${action} not found in ${device.name}'s actions`
-          }
-        } catch (error) {
-          debug(error)
-          reject(error)
-        }
-      })
-    })
-  }
-
-  getTaskStatus(taskID) {
-    return new Promise((resolve, reject) => {
-      const task = this.taskMap[taskID]
-      if (task) {
-        const { instructions } = task
-        // Keep track of how many lights we're trying to modify
-        let completeCount = 0
-        const statusArray = []
-
-        // Checker to resolve the promise
-        const checkResovle = (status) => {
-          statusArray.push(status)
-          if (completeCount === instructions.length - 1) {
-            let successCount = 0
-            statusArray.forEach(item => {
-              if (item.status.success) { successCount += 1 }
-            })
-            resolve({
-              success: successCount === statusArray.length,
-              statusArray
-            })
-          }
-          completeCount += 1
-        }
-        // Go through all the instructions,
-        // grab the devices, and check their status
-        // to see if this task is active
-        instructions.forEach(instruction => {
-          const { service, action, params } = instruction
-          let { devices } = instruction
-          if (!devices && service) {
-            devices = this.application.getDevicesOfService(service)
-          }
-          this.checkStatus({ devices, action, expectedValue: params })
-            .then((status) => {
-              checkResovle({ status, action, service })
-            })
-            .catch(reject)
-        })
-      } else {
-        reject({ error: `Invalid task. ${taskID} does not exist in the taskMap` })
-      }
     })
   }
 }

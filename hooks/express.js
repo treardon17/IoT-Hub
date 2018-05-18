@@ -62,7 +62,10 @@ class Express extends Hook {
     const devices = device || this.application.getDevicesOfService(service)
 
     if (devices.length > 0) {
-      this.application.taskManager.performAction({ action, devices, params: value })
+      const task = this.application.taskManager.createTask({
+        instructions: [{ action, params: value, devices }]
+      })
+      task.execute()
         .then(() => {
           res.json({ success: true })
         })

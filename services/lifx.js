@@ -10,13 +10,6 @@ class LifxService extends Service {
     this.defaultTransition = 2000
   }
 
-  // INITIALIZATION
-  setupActions() {
-    this.actions.power = this.power.bind(this)
-    this.actions.color = this.color.bind(this)
-    this.actions.getLight = this.getLight.bind(this)
-  }
-
   // LISTENERS ------------
   discoverDevices() {
     return new Promise((resolve, reject) => {
@@ -51,24 +44,6 @@ class LifxService extends Service {
       debug('Light with ID', `"${id}"`, 'does not exist')
       return null
     }
-  }
-
-  power({ device, value }) {
-    return this.performAction({
-      duration: this.defaultTransition,
-      device,
-      action: 'power',
-      params: value
-    })
-  }
-
-  color({ device, red, green, blue } = {}) {
-    return this.performAction({
-      duration: this.defaultTransition,
-      device,
-      action: 'color',
-      params: { red, green, blue }
-    })
   }
 }
 

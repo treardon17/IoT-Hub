@@ -8,10 +8,6 @@ class RokuService extends Service {
     super({ name: 'roku', deviceClass: RokuTV })
   }
 
-  setupActions() {
-    this.actions.power = this.power.bind(this)
-  }
-
   discoverDevices() {
     return new Promise((resolve, reject) => {
       try {
@@ -46,18 +42,6 @@ class RokuService extends Service {
 
   onDeviceExtraInfo({ id, device }) {
     this.saveDevices()
-  }
-
-  // ACTIONS ------------
-  power({ id, on, devices }) {
-    if (id) {
-      // Turn on specific device
-      const device = this.deviceMap[id]
-      device.power({ on })
-    } else {
-      // Turn on all devices
-      this.performAction({ action: 'power', params: { on }, devices })
-    }
   }
 }
 
