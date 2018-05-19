@@ -87,14 +87,11 @@ class LifxBulb extends Device {
 
   getBrightnessState() {
     return new Promise((resolve, reject) => {
-      if (this.bulb) {
-        this.bulb.getState(state => {
-          resolve(state.brightness)
+      this.getLightState()
+        .then((state) => {
+          resolve(state.color.brightness)
         })
-      } else {
-        debug(`"getBrightnessState" in device ${this.name} does not have a valid bulb`)
-        reject()
-      }
+        .catch(reject)
     })
   }
 
@@ -133,17 +130,17 @@ class LifxBulb extends Device {
 
   color({ hue, saturation, brightness, kelvin }) {
     return new Promise((resolve, reject) => {
-      if (this.bulb) {
-        this.bulb.getState((state) => {
-          hue = hue ? self.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.hue
-          saturation = saturation ? self.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.saturation
-          brightness = brightness ? self.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.brightness
-          kelvin = kelvin ? self.maxMin({ min: 2500, max: 9000, name: 'kelvin', value: kelvin }) : state.kelvin
-          light.color(hue, saturation, brightness, kelvin, this.defaultTransition, resolve)
+      this.getLightState()
+        .then((state) => {
+          this.bulb.getState((state) => {
+            hue = hue ? self.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.color.hue
+            saturation = saturation ? self.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.color.saturation
+            brightness = brightness ? self.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.color.brightness
+            kelvin = kelvin ? self.maxMin({ min: 2500, max: 9000, name: 'kelvin', value: kelvin }) : state.color.kelvin
+            light.color(hue, saturation, brightness, kelvin, this.defaultTransition, resolve)
+          })
         })
-      } else {
-        reject({ error: `"color": Light ${this.id} does not exist` })
-      }
+        .catch(reject)
     })
   }
 
