@@ -7,15 +7,32 @@ class Action {
     if (!status || typeof status !== 'function') { debug('Action must have a "status" --> function returning a promise') }
     if (!type) { debug('Action must have an action "type"') }
 
-    this.execute = execute
-    this.status = status
+    this._execute = execute
+    this._status = status
     this.desc = desc
     this.type = type
+  }
+
+  execute(...params) {
+    if (typeof this._execute === 'function') {
+      return this._execute(...params)
+    }
+    debug('Function `execute` in Action has invalid type')
+    return null
+  }
+
+  status() {
+    if (typeof this._status === 'function') {
+      return this._status()
+    }
+    debug('Function `status` in Action has invalid type')
+    return null
   }
 }
 
 Action.types = {}
 Action.types.switch = 'switch'
 Action.types.hue = 'hue'
+Action.types.brightness = 'brightness'
 
 module.exports = Action

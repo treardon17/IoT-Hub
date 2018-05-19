@@ -200,6 +200,14 @@ class Task {
       })
     })
   }
+
+  // -----------------------------
+  // HELPERS ---------------------
+  // -----------------------------
+  getSaveData() {
+    const { id, name, description, instructions } = this
+    return { id, name, description, instructions }
+  }
 }
 
 module.exports = Task

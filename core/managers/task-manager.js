@@ -3,11 +3,29 @@ const debug = Util.Log('Manager:Task')
 const Task = require('../types/task')
 
 class TaskManager {
-  constructor({ application }) {
+  constructor({ application, onReady }) {
     this.application = application
     this.taskMap = {}
+    this.tasksDirty = false
     this.fileName = 'task-manager'
-    this.initTasks().catch(() => { debug('Task file does not exist') })
+    this.onReady = onReady
+    this.init()
+  }
+
+  get tasks() {
+    if (!this._tasks || this.tasksDirty) {
+      this._tasks = Object.keys(this.taskMap).map(key => this.taskMap[key])
+      this.tasksDirty = false
+    }
+    return this._tasks
+  }
+
+  init() {
+    this.initTasks()
+      .then(() => {
+        if (typeof this.onReady === 'function') { this.onReady() }
+      })
+      .catch(() => { debug('Task file does not exist') })
   }
 
   /**
@@ -21,8 +39,8 @@ class TaskManager {
         .then((data) => {
           const { tasks } = data
           if (tasks) {
-            Object.keys(tasks).forEach(key => {
-              this.taskMap[key] = new Task(tasks[key])
+            tasks.forEach(task => {
+              this.taskMap[task.id] = this.createTask(task)
             })
             resolve()
           } else {
@@ -52,6 +70,7 @@ class TaskManager {
     const task = new Task({ id: Util.ID.guid(), name, description, instructions: myInstructions, application: this.application })
     
     if (save) {
+      this.tasksDirty = true
       this.taskMap[task.id] = task
       return new Promise((resolve, reject) => {
         this.saveTasks()
@@ -89,7 +108,7 @@ class TaskManager {
       Util.FileIO.saveToDataFile({
         fileName: this.fileName,
         key: 'tasks',
-        data: this.taskMap
+        data: this.getSaveTaskArray()
       })
         .then(() => {
           resolve()
@@ -98,6 +117,15 @@ class TaskManager {
           reject(error)
         })
     })
+  }
+
+  getSaveTaskArray() {
+    const { tasks } = this
+    const saveArray = []
+    tasks.forEach(task => {
+      saveArray.push(task.getSaveData())
+    })
+    return saveArray
   }
 }
 

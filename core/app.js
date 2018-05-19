@@ -9,9 +9,9 @@ class App {
   constructor() {
     this.services = {}
     this.shouldUpdateDevices = false
-    this.taskManager = new TaskManager({ application: this })
     this.setupDebounce()
     this.initialize()
+    this.taskManager = new TaskManager({ application: this })
   }
 
   setupDebounce() {
