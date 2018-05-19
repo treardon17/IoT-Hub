@@ -131,14 +131,13 @@ class LifxBulb extends Device {
   color({ hue, saturation, brightness, kelvin }) {
     return new Promise((resolve, reject) => {
       this.getLightState()
-        .then((state) => {
-          this.bulb.getState((state) => {
-            hue = hue ? self.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.color.hue
-            saturation = saturation ? self.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.color.saturation
-            brightness = brightness ? self.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.color.brightness
-            kelvin = kelvin ? self.maxMin({ min: 2500, max: 9000, name: 'kelvin', value: kelvin }) : state.color.kelvin
-            light.color(hue, saturation, brightness, kelvin, this.defaultTransition, resolve)
-          })
+        .then(state => {
+          console.log(state)
+            hue = hue ? this.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.color.hue
+            saturation = saturation ? this.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.color.saturation
+            brightness = brightness ? this.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.color.brightness
+            kelvin = kelvin ? this.maxMin({ min: 2500, max: 9000, name: 'kelvin', value: kelvin }) : state.color.kelvin
+            this.bulb.color(hue, saturation, brightness, kelvin, this.defaultTransition, resolve)
         })
         .catch(reject)
     })
