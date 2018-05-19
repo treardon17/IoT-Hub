@@ -33,7 +33,8 @@ class HomeKit extends Hook {
     debug('Setting action mappings')
     this.deviceActionMapping = {
       [Action.types.switch]: Characteristic.On,
-      [Action.types.hue]: Characteristic.Hue
+      [Action.types.hue]: Characteristic.Hue,
+      [Action.types.brightness]: Characteristic.Brightness
     }
   }
 

@@ -19,12 +19,18 @@ class LifxBulb extends Device {
         status: this.getPowerState.bind(this),
         type: Action.types.switch
       }),
-      color: new Action({
-        desc: "Change color of lights",
-        execute: this.color.bind(this),
-        status: this.getColorState.bind(this),
-        type: Action.types.hue
-      })
+      brightness: new Action({
+        desc: "Change brightness of lights",
+        execute: this.brightness.bind(this),
+        status: this.getBrightnessState.bind(this),
+        type: Action.types.brightness
+      }),
+      // color: new Action({
+      //   desc: "Change color of lights",
+      //   execute: this.color.bind(this),
+      //   status: this.getColorState.bind(this),
+      //   type: Action.types.hue
+      // })
     }
   }
 
@@ -79,6 +85,18 @@ class LifxBulb extends Device {
     })
   }
 
+  getBrightnessState() {
+    return new Promise((resolve, reject) => {
+      if (this.bulb) {
+        this.bulb.getState(state => {
+          resolve(state.brightness)
+        })
+      } else {
+        debug(`"getBrightnessState" in device ${this.name} does not have a valid bulb`)
+        reject()
+      }
+    })
+  }
 
   // ------------------------
   // ACTIONS ----------------
@@ -127,6 +145,10 @@ class LifxBulb extends Device {
         reject({ error: `"color": Light ${this.id} does not exist` })
       }
     })
+  }
+
+  brightness(brightness) {
+    return this.color({ brightness })
   }
 }
 
