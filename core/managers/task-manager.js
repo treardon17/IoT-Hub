@@ -38,7 +38,7 @@ class TaskManager {
       Util.FileIO.readDataFile({ fileName: this.fileName })
         .then((data) => {
           const { tasks } = data
-          if (tasks) {
+          if (tasks && Array.isArray(tasks)) {
             tasks.forEach(task => {
               this.taskMap[task.id] = this.createTask(task)
             })
