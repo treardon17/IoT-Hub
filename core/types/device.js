@@ -8,14 +8,14 @@ const debug = Util.Log('Device')
  * A Device is anything that can be controlled
  */
 class Device {
-  constructor({ id = '', guid = '', name = '', ip = '', type, parentService }) {
+  constructor({ id = '', guid = '', name = '', ip = '', type, actions, parentService }) {
     this.id = id || Util.ID.hash(name)
     this.guid = Util.ID.guid()
     this.name = name
     this.ip = ip
     this.type = type || Device.generic
     this.parentService = parentService
-    this.actions = this.createActions()
+    this.actions = { ...this.createActions(), ...actions }
   }
 
   // ---------------------------

@@ -3,15 +3,14 @@ const debug = require('../../util/log')
 
 class TaskDevice extends Device {
   constructor({ name, task }) {
-    this.task = task
-    super({ name, type: Device.types.task })
+    super({
+      name,
+      actions: { on: task },
+      type: Device.types.task
+    })
   }
 
-  createActions() {
-    return {
-      on: this.task
-    }
-  }
+  createActions() { return {} }
 }
 
 module.exports = TaskDevice

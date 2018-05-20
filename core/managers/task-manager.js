@@ -55,7 +55,7 @@ class TaskManager {
           const { tasks } = data
           if (tasks && Array.isArray(tasks)) {
             tasks.forEach(task => {
-              this.taskMap[task.id] = this.createTask(task)
+              this.taskMap[task.id] = this.createTask({ ...task, save: true })
             })
             resolve()
           } else {
