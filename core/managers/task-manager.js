@@ -74,22 +74,24 @@ class TaskManager {
    * 
    * @param { name } string the name of the task
    * @param { desc } string what the task does
-   * @param { save } bool whether or not to save the task to the json file. if this is set to true, the function will return a promise
+   * @param { taskType } string type of action being created. default is "switch"
+   * @param { deviceType } string type of task device being created. default is "task"
    * @param { instructions } array an array of task actions. Look at `task.js` for more information.
+   * @param { save } bool whether or not to save the task to the json file. if this is set to true, the function will return a promise
    */
-  createTask({ name, desc, save, instructions } = {}) {
+  createTask({ name, desc, taskType, deviceType, instructions, save } = {}) {
     debug(`Creating task ${name}`)
     let myInstructions = instructions;
     if (!Array.isArray(instructions)) {
       myInstructions = [instructions]
     }
-    const task = new Task({ id: Util.ID.guid(), name, desc, instructions: myInstructions, application: this.application })
+    const task = new Task({ id: Util.ID.guid(), name, type: taskType, desc, instructions: myInstructions, application: this.application })
     
     if (save) {
       debug(`Saving task ${name}`)
       this.tasksDirty = true
       this.taskMap[task.id] = task
-      this.taskDeviceMap[task.id] = new TaskDevice({ name, task })
+      this.taskDeviceMap[task.id] = new TaskDevice({ name, task, type: deviceType })
       this.application.onChildDevicesUpdate()
       return new Promise((resolve, reject) => {
         this.saveTasks()

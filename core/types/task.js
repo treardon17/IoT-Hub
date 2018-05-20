@@ -9,8 +9,8 @@ const debug = Util.Log('Task')
  * A Task is a series of actions to be executed
  */
 class Task extends Action {
-  constructor({ id, name, desc, instructions, application }) {
-    super({ desc, type: Action.types.switch })
+  constructor({ id, name, desc, type, instructions, application }) {
+    super({ desc, type: type || Action.types.switch })
     if (!id) { debug('Task must have an ID') }
     this.id = id
     this.name = name

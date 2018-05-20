@@ -2,11 +2,11 @@ const Device = require('./device')
 const debug = require('../../util/log')
 
 class TaskDevice extends Device {
-  constructor({ name, task }) {
+  constructor({ name, task, type }) {
     super({
       name,
       actions: { on: task },
-      type: Device.types.task
+      type: type || Device.types.task
     })
   }
 
