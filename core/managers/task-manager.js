@@ -85,10 +85,10 @@ class TaskManager {
     if (!Array.isArray(instructions)) {
       myInstructions = [instructions]
     }
-    const task = new Task({ id: Util.ID.guid(), name, type: taskType, desc, instructions: myInstructions, application: this.application })
+    const task = new Task({ id: Util.ID.guid(), name, type, desc, instructions: myInstructions, application: this.application })
     
     if (save) {
-      debug(`Saving task ${name}`)
+      debug(`Saving task ${name} of type ${type}`)
       this.tasksDirty = true
       this.taskMap[task.id] = task
       this.taskDeviceMap[task.id] = new TaskDevice({ name, task, type })

@@ -209,8 +209,8 @@ class Task extends Action {
   // HELPERS ---------------------
   // -----------------------------
   getSaveData() {
-    const { id, name, description, instructions } = this
-    return { id, name, description, instructions }
+    const { id, name, type, description, instructions } = this
+    return { id, name, type, description, instructions }
   }
 }
 
