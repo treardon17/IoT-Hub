@@ -1,4 +1,5 @@
 const Util = require('../../util')
+const Action = require('./action')
 const debug = Util.Log('Task')
 
 /**
@@ -7,13 +8,12 @@ const debug = Util.Log('Task')
  * @class Task
  * A Task is a series of actions to be executed
  */
-class Task {
-  constructor({ id, name, description, instructions, application }) {
+class Task extends Action {
+  constructor({ id, name, desc, instructions, application }) {
+    super({ desc, type: Action.types.switch })
     if (!id) { debug('Task must have an ID') }
-
     this.id = id
     this.name = name
-    this.description = description
     this.instructions = []
     this.application = application
 

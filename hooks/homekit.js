@@ -25,7 +25,8 @@ class HomeKit extends Hook {
     debug('Setting device mappings')
     this.deviceTypeMapping = {
       [Device.types.light]: Service.Lightbulb,
-      [Device.types.tv]: Service.Switch
+      [Device.types.tv]: Service.Switch,
+      [Device.types.task]: Service.Switch
     }
   }
 
@@ -130,24 +131,24 @@ class HomeKit extends Hook {
           service
             .getCharacteristic(characteristic)
             .on('set', (value, callback) => {
-              action
-                .execute(value)
-                .then(() => {
+              const myPromise = action.execute(value)
+              if (myPromise) {
+                myPromise.then(() => {
                   callback(null, true)
-                })
-                .catch((error) => {
+                }).catch((error) => {
                   callback(null, false)
                 })
+              }
             })
             .on('get', (callback) => {
-              action
-                .status()
-                .then((status) => {
+              const myPromise = action.status()
+              if (myPromise) {
+                myPromise.then(() => {
                   callback(null, status)
-                })
-                .catch(() => {
+                }).catch(() => {
                   callback(null, false)
                 })
+              }
             })
         } else {
           debug(`Action type ${action.type} in ${key} of ${device.name} is not yet supported. Aborting...`)

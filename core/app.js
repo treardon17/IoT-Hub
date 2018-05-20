@@ -27,6 +27,9 @@ class App {
         const service = this.services[serviceName]
         devices = [...devices, ...service.devices]
       })
+      // Get all of the task devices from the task manager
+      // and add them to the list of total devices as well
+      devices = [...devices, ...this.taskManager.taskDevices]
       // Hang on to the previous state of devices so we
       // can see any new devices that have been added
       this._prevDevices = (this._devices || []).slice()

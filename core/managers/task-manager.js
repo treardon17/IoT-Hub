@@ -1,12 +1,15 @@
 const Util = require('../../util')
 const debug = Util.Log('Manager:Task')
 const Task = require('../types/task')
+const TaskDevice = require('../types/task-device')
 
 class TaskManager {
   constructor({ application, onReady }) {
     this.application = application
     this.taskMap = {}
     this.tasksDirty = false
+    this.taskDeviceMap = {}
+    this.taskDevicesDirty = false
     this.fileName = 'task-manager'
     this.onReady = onReady
     this.init()
@@ -20,6 +23,18 @@ class TaskManager {
     return this._tasks
   }
 
+  get taskDevices() {
+    if (!this._taskDevices || this.taskDevicesDirty) {
+      this._taskDevices = Object.keys(this.taskDeviceMap).map(key => this.taskDeviceMap[key])
+      this.taskDevicesDirty = false
+    }
+    return this._taskDevices
+  }
+
+
+  // -----------------------------
+  // INIT ------------------------
+  // -----------------------------
   init() {
     this.initTasks()
       .then(() => {
@@ -58,20 +73,24 @@ class TaskManager {
   /**
    * 
    * @param { name } string the name of the task
-   * @param { description } string what the task does
+   * @param { desc } string what the task does
    * @param { save } bool whether or not to save the task to the json file. if this is set to true, the function will return a promise
    * @param { instructions } array an array of task actions. Look at `task.js` for more information.
    */
-  createTask({ name, description, save, instructions } = {}) {
+  createTask({ name, desc, save, instructions } = {}) {
+    debug(`Creating task ${name}`)
     let myInstructions = instructions;
     if (!Array.isArray(instructions)) {
       myInstructions = [instructions]
     }
-    const task = new Task({ id: Util.ID.guid(), name, description, instructions: myInstructions, application: this.application })
+    const task = new Task({ id: Util.ID.guid(), name, desc, instructions: myInstructions, application: this.application })
     
     if (save) {
+      debug(`Saving task ${name}`)
       this.tasksDirty = true
       this.taskMap[task.id] = task
+      this.taskDeviceMap[task.id] = new TaskDevice({ name, task })
+      this.application.notifyParentOfDeviceChanges()
       return new Promise((resolve, reject) => {
         this.saveTasks()
           .then(() => { resolve(task) })
@@ -99,10 +118,6 @@ class TaskManager {
     return null
   }
 
-
-  // THIS IS BROKEN NOW BECAUSE THERE'S A CIRCULAR STRUCTURE.
-  // NEED TO ONLY SAVE THE NAME, DESCRIPTION, AND INSTRUCTIONS
-  // RATHER THAN EVERYTHING IN THE TASK MAP
   saveTasks() {
     return new Promise((resolve, reject) => {
       Util.FileIO.saveToDataFile({

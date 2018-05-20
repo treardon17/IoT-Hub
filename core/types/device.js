@@ -34,6 +34,7 @@ class Device {
 
 Device.types = {}
 Device.types.generic = 'generic'
+Device.types.task = 'task'
 Device.types.light = 'light'
 Device.types.tv = 'tv'
 

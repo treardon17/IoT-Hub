@@ -3,8 +3,8 @@ const debug = Util.Log('Action')
 
 class Action {
   constructor({ execute, status, desc, type } = {}) {
-    if (!execute || typeof execute !== 'function') { debug('Action must have a "execute" --> function returning a promise') }
-    if (!status || typeof status !== 'function') { debug('Action must have a "status" --> function returning a promise') }
+    if (execute && typeof execute !== 'function') { debug('Action must have a "execute" --> function returning a promise') }
+    if (status && typeof status !== 'function') { debug('Action must have a "status" --> function returning a promise') }
     if (!type) { debug('Action must have an action "type"') }
 
     this._execute = execute
@@ -13,6 +13,11 @@ class Action {
     this.type = type
   }
 
+  /**
+   * Performs the action with the given parameters.
+   * Should return a promise if overridden.
+   * @param {*} params 
+   */
   execute(...params) {
     if (typeof this._execute === 'function') {
       return this._execute(...params)
@@ -21,6 +26,10 @@ class Action {
     return null
   }
 
+  /**
+   * Gets the current status/state of the action
+   * Should return a promise if overridden.
+   */
   status() {
     if (typeof this._status === 'function') {
       return this._status()
