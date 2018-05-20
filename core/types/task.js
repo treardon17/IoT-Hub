@@ -84,7 +84,7 @@ class Task extends Action {
     })
   }
 
-  execute() {
+  execute(value) {
     return new Promise((resolve, reject) => {
       const { instructions } = this
       // Keep track of how many lights we're trying to modify
@@ -99,7 +99,11 @@ class Task extends Action {
         if (!devices && service) {
           devices = this.application.getDevicesOfService(service)
         }
-        this.performAction({ devices, action, params })
+        let myParams = params
+        if (value != null) {
+          myParams = value
+        }
+        this.performAction({ devices, action, params: myParams })
           .then(checkResovle)
           .catch(reject)
       })
