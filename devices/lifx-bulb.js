@@ -25,12 +25,12 @@ class LifxBulb extends Device {
         status: this.getBrightnessState.bind(this),
         type: Action.types.brightness
       }),
-      // color: new Action({
-      //   desc: "Change color of lights",
-      //   execute: this.color.bind(this),
-      //   status: this.getColorState.bind(this),
-      //   type: Action.types.hue
-      // })
+      color: new Action({
+        desc: "Change color of lights",
+        execute: this.hue.bind(this),
+        status: this.getColorState.bind(this),
+        type: Action.types.hue
+      })
     }
   }
 
@@ -81,7 +81,7 @@ class LifxBulb extends Device {
 
   getColorState() {
     return new Promise((resolve, reject) => {
-      resolve()
+      resolve('ffffff')
     })
   }
 
@@ -144,6 +144,10 @@ class LifxBulb extends Device {
 
   brightness(brightness) {
     return this.color({ brightness })
+  }
+
+  hue(hue) {
+    return this.color({ hue })
   }
 }
 
