@@ -108,7 +108,6 @@ class TaskManager {
       this.taskMap[task.id] = task
       this.taskDeviceMap[task.id] = new TaskDevice({
         name,
-        type,
         actions: { on: task }
       })
       this.application.onChildDevicesUpdate()
