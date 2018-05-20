@@ -90,7 +90,7 @@ class TaskManager {
       this.tasksDirty = true
       this.taskMap[task.id] = task
       this.taskDeviceMap[task.id] = new TaskDevice({ name, task })
-      this.application.notifyParentOfDeviceChanges()
+      this.application.onChildDevicesUpdate()
       return new Promise((resolve, reject) => {
         this.saveTasks()
           .then(() => { resolve(task) })
