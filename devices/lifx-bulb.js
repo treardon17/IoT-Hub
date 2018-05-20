@@ -132,7 +132,6 @@ class LifxBulb extends Device {
     return new Promise((resolve, reject) => {
       this.getLightState()
         .then(state => {
-          console.log(state)
             hue = hue ? this.maxMin({ min: 0, max: 360, name: 'hue', value: hue }) : state.color.hue
             saturation = saturation ? this.maxMin({ min: 0, max: 100, name: 'saturation', value: saturation }) : state.color.saturation
             brightness = brightness ? this.maxMin({ min: 0, max: 100, name: 'brightness', value: brightness }) : state.color.brightness

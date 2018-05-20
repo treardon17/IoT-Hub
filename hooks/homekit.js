@@ -151,7 +151,7 @@ class HomeKit extends Hook {
               }
             })
         } else {
-          debug(`Action type ${action.type} in ${key} of ${device.name} is not yet supported. Aborting...`)
+          debug(`Action type ${action.type} in "${key}" of "${device.name}" is not yet supported. Aborting...`)
         }
       })
     } else {
