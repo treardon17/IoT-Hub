@@ -89,21 +89,6 @@ class TaskManager {
     
     if (save) {
       debug(`Saving task ${name} of type ${type}`)
-
-      let isSharedService = true
-      let service = null
-      for(let i = 0; i < myInstructions.length; i++) {
-        const instruction = myInstructions[i]
-        if (service === null) {
-          service = instruction.service
-        } else if (service !== instruction.service) {
-          isSharedService = false
-          break
-        }
-      }
-
-      debug(`Is shared service ${service}? ${isSharedService}`)
-
       this.tasksDirty = true
       this.taskMap[task.id] = task
       this.taskDeviceMap[task.id] = new TaskDevice({
