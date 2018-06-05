@@ -11,6 +11,10 @@ class Action {
     this._status = status
     this.desc = desc
     this.type = type
+
+    // internal state
+    this._previousCheckTime = Number.MIN_VALUE
+    this._cachedStatus = null
   }
 
   /**
@@ -32,7 +36,23 @@ class Action {
    */
   status() {
     if (typeof this._status === 'function') {
+      const currentTime = new Date().getTime()
+      const difference = currentTime - this._previousCheckTime
+      // If the function has been called within the last half second,
+      // use the cached status rather than making the same request again
+      if (this._cachedStatus != null && difference < 500) {
+        debug('Using cached status for action')
+        return Promise.resolve(this._cachedStatus)
+      }
+
+      // Otherwise query the device again and then cache the status
+      debug('Refreshing action status')
       return this._status()
+      .then((status) => {
+          this._cachedStatus = status
+          this._previousCheckTime = new Date().getTime()
+          return status
+        })
     }
     debug('Function `status` in Action has invalid type')
     return null
