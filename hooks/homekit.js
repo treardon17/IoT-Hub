@@ -26,7 +26,8 @@ class HomeKit extends Hook {
     this.deviceTypeMapping = {
       [Device.types.light]: Service.Lightbulb,
       [Device.types.tv]: Service.Switch,
-      [Device.types.task]: Service.Switch
+      [Device.types.task]: Service.Switch,
+      [Device.types.amplifier]: Service.Switch
     }
   }
 
