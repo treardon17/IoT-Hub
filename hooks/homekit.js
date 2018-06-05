@@ -13,7 +13,7 @@ const Action = require('../core/types/action')
 class HomeKit extends Hook {
   constructor() {
     super()
-    this.username = 'CC:22:3D:E3:CE:F6'
+    this.username = 'CC:22:3D:E3:CE:F7'
     this.pincode = '031-45-154'
     this.port = 51826
     this.accessoryMap = {}
@@ -143,9 +143,10 @@ class HomeKit extends Hook {
             .on('get', (callback) => {
               const myPromise = action.status()
               if (myPromise) {
-                myPromise.then(() => {
+                myPromise.then((status) => {
                   callback(null, status)
-                }).catch(() => {
+                }).catch((error) => {
+                  debug(`Error getting status of device ${device.name}`, error)
                   callback(null, false)
                 })
               }

@@ -37,5 +37,6 @@ Device.types.generic = 'generic'
 Device.types.task = 'task'
 Device.types.light = 'light'
 Device.types.tv = 'tv'
+Device.types.amplifier = 'amplifier'
 
 module.exports = Device

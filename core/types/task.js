@@ -84,14 +84,20 @@ class Task extends Action {
     })
   }
 
-  execute(value) {
+  execute(value, serialize) {
     return new Promise((resolve, reject) => {
       const { instructions } = this
       // Keep track of how many lights we're trying to modify
+      const performers = []
       let completeCount = 0
       const checkResovle = () => {
         if (completeCount === instructions.length - 1) { resolve() }
         completeCount += 1
+        // If we're serializing the tasks, call the next
+        // task here
+        if (serialize && performers.length > 0) {
+          performers.shift()()
+        }
       }
       instructions.forEach(instruction => {
         const { service, action, params } = instruction
@@ -103,10 +109,25 @@ class Task extends Action {
         if (value != null) {
           myParams = value
         }
-        this.performAction({ devices, action, params: myParams })
-          .then(checkResovle)
-          .catch(reject)
+
+        // Add the functions to the performers array
+        const perform = () => {
+          this.performAction({ devices, action, params: myParams })
+            .then(checkResovle)
+            .catch(reject)
+        }
+        performers.push(perform)
       })
+
+      // If we're serializing the commands, start the first function
+      if (serialize && performers.length > 0) {
+        performers.shift()()
+      } else {
+        // Otherwise, start all of them at once
+        performers.forEach((perform) => {
+          perform()
+        })
+      }
     })
   }
 
