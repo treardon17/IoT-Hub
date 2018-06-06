@@ -20,7 +20,7 @@ class YamahaAmplifier extends Device {
       }),
       hdmi1: new Action({
         desc: 'Change input of amplifier to HDMI 1',
-        execute: this.setInputHDMI.bind(this),
+        execute: this.setInputHDMI1.bind(this),
         status: this.isInputHDMI1.bind(this),
       }),
       input: new Action({
