@@ -1,5 +1,5 @@
 const Service = require('../core/types/service')
-const YamahaReceiver = require('../devices/yamaha-receiver')
+const YamahaReceiver = require('../devices/yamaha-amplifier')
 const Util = require('../util')
 const debug = Util.Log('Service:YamahaService')
 const Yamaha = require('yamaha-nodejs')
@@ -13,7 +13,7 @@ class YamahaService extends Service {
     // this is only set up for one device on the network currently
     return new Promise((resolve, reject) => {
       const yamahaAmp = new Yamaha()
-      const id = 'yamaha'
+      const id = 'amplifier'
       this.deviceMap[id] = new YamahaReceiver({ id, name: id, receiver: yamahaAmp, parentService: this })
       this.saveDevices()
       this.setShouldUpdateDevices()
