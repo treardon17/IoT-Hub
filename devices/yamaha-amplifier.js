@@ -68,7 +68,7 @@ class YamahaAmplifier extends Device {
   isInputHDMI1() {
     return new Promise((resolve, reject) => {
       this.getInputState()
-        then(input => {
+        .then(input => {
           resolve(input === 'HDMI 1')
         })
     })
