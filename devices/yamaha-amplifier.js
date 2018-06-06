@@ -21,7 +21,8 @@ class YamahaAmplifier extends Device {
       input: new Action({
         desc: 'Change input of amplifier',
         execute: this.input.bind(this),
-        status: this.getInputState.bind(this)
+        status: this.getInputState.bind(this),
+        type: Action.types.switch
       })
     }
   }
