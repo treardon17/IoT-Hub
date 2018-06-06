@@ -84,7 +84,7 @@ class Task extends Action {
     })
   }
 
-  execute(value, serialize) {
+  execute(value, serialize = true) {
     return new Promise((resolve, reject) => {
       const { instructions } = this
       // Keep track of how many lights we're trying to modify

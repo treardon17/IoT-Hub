@@ -34,29 +34,37 @@ class Express extends Hook {
     const serviceKeys = Object.keys(services)
 
     // Service specific routes
-    const onPost = (req, res, next) => { this.onPost({ req, res, next }) }
+    const onServicePost = (req, res, next) => { this.onServicePost({ req, res, next }) }
     const onGet = (req, res, next) => { this.onGet({ req, res, next }) }
 
     // Post
-    this.router.post(`/:service/:action`, onPost)
-    this.router.post(`/:service/device=:device/:action`, onPost)
+    this.router.post(`/:service/:action`, onServicePost)
+    this.router.post(`/:service/device=:device/:action`, onServicePost)
     // Get
     // this.router.get(`/:service/:action`, onGet)
     // this.router.get(`/:service/device=:device/:action`, onGet)
   }
 
-  onPost({ req, res, next }) {
-    const { service, device, action } = req.params
-    const { token, value } = req.body
-    debug('Post request received:', `service "${service}", device "${device || 'all'}", action "${action}"`)
-
-    // Security -- ensure token is correct before performing task
+  validateToken(token) {
     if (token !== this.token) {
       debug(`Token ${token} is incorrect`)
-      res.status(401).json({ success: false, error: 'Unauthorized' })
-      return
+      return { success: false, error: 'Unauthorized', responseCode: 401 }
     } else {
       debug('Token valid')
+      return { success: true }
+    }
+  }
+
+  onServicePost({ req, res, next }) {
+    const { service, device, action } = req.params
+    const { token, value } = req.body
+    debug('Service post request received:', `service "${service}", device "${device || 'all'}", action "${action}"`)
+
+    // Security -- ensure token is correct before performing task
+    const tokenValidation = this.validateToken(token)
+    if (!tokenValidation.success) {
+      res.status(tokenValidation.responseCode).json(tokenValidation)
+      return
     }
 
     const devices = device || this.application.getDevicesOfService(service)
@@ -75,6 +83,22 @@ class Express extends Hook {
     } else {
       debug('No devices from', `service ${service}`, `devices ${devices}`)
       res.status(400).json({ success: false, error: 'No devices found' })
+    }
+  }
+
+  onTaskPost({ req, res, next }) {
+    const { task } = req.params
+    const { token, value } = req.body
+    debug('Task post request received:', `task "${task}"`)
+    const theTask = this.application.taskManager.taskMap[task]
+    if (theTask && typeof theTask.execute === 'function') {
+      theTask.execute(value)
+        .then(() => {
+          res.json({ success: true })
+        })
+        .catch((error) => {
+          res.status(500).json({ success: false, error })
+        })
     }
   }
 
