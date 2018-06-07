@@ -62,7 +62,7 @@ class Task extends Action {
       // If we're performing a valid action
       // Perform that action on every light
       myDevices.forEach((device) => {
-        debug(`Performing ${action} on ${device.id}`)
+        debug(`Performing ${action} on ${device.name}`, params)
         try {
           const deviceActions = device.actions
           if (deviceActions[action]) {
@@ -85,11 +85,14 @@ class Task extends Action {
   }
 
   execute(value, serialize = true) {
+    debug(`Performing execute on task: ${this.name}. Serialized: ${serialize}`)
     return new Promise((resolve, reject) => {
       const { instructions } = this
-      // Keep track of how many lights we're trying to modify
+      // Keep track of how many devices we're trying to modify
       const performers = []
       let completeCount = 0
+
+      // Resolver function
       const checkResovle = () => {
         if (completeCount === instructions.length - 1) { resolve() }
         completeCount += 1
@@ -99,16 +102,20 @@ class Task extends Action {
           performers.shift()()
         }
       }
+
+      // Loop through all the instructions and perform the actions
       instructions.forEach(instruction => {
         const { service, action, params } = instruction
         let { devices } = instruction
+        debug('Instruction', service, action, params)
         if (!devices && service) {
           devices = this.application.getDevicesOfService(service)
         }
-        let myParams = params
-        if (value != null) {
-          myParams = value
-        }
+        // let myParams = params
+        // if (value != null && params == null) {
+        //   myParams = value
+        // }
+        const myParams = value ? params : !params
 
         // Add the functions to the performers array
         const perform = () => {
@@ -187,6 +194,7 @@ class Task extends Action {
   }
 
   status() {
+    debug(`${this.name} --> Checking status`)
     return new Promise((resolve, reject) => {
       const { instructions } = this
       // Keep track of how many lights we're trying to modify
@@ -199,10 +207,13 @@ class Task extends Action {
         if (completeCount === instructions.length - 1) {
           let successCount = 0
           statusArray.forEach(item => {
+            debug(`${item.action} success: ${item.status.success}`)
             if (item.status.success) { successCount += 1 }
           })
+          const success = successCount === statusArray.length
+          debug(`${this.name} status: ${success}`)
           resolve({
-            success: successCount === statusArray.length,
+            success,
             statusArray
           })
         }

@@ -36,7 +36,9 @@ class HomeKit extends Hook {
     this.deviceActionMapping = {
       [Action.types.switch]: Characteristic.On,
       [Action.types.hue]: Characteristic.Hue,
-      [Action.types.brightness]: Characteristic.Brightness
+      [Action.types.brightness]: Characteristic.Brightness,
+      [Action.types.volume]: Characteristic.Volume,
+      [Action.types.mute]: Characteristic.Mute,
     }
   }
 
@@ -120,6 +122,7 @@ class HomeKit extends Hook {
     // Create the accessory object
     const accessory = new Accessory(device.name, uuid.generate(device.guid))
     this.accessoryMap[device.id] = accessory
+    // The type of accessory, mapped to HomeKit's types
     const type = this.deviceTypeMapping[device.type]
     if (type != null) {
       accessory.addService(type, device.name)
@@ -131,27 +134,8 @@ class HomeKit extends Hook {
           const service = accessory.getService(type)
           service
             .getCharacteristic(characteristic)
-            .on('set', (value, callback) => {
-              const myPromise = action.execute(value)
-              if (myPromise) {
-                myPromise.then(() => {
-                  callback(null, true)
-                }).catch((error) => {
-                  callback(null, false)
-                })
-              }
-            })
-            .on('get', (callback) => {
-              const myPromise = action.status()
-              if (myPromise) {
-                myPromise.then((status) => {
-                  callback(null, status)
-                }).catch((error) => {
-                  debug(`Error getting status of device ${device.name}`, error)
-                  callback(null, false)
-                })
-              }
-            })
+            .on('set', (value, callback) => { this.setAccessory({ value, callback, action }) })
+            .on('get', (callback) => { this.getAccessoryStatus({ action, callback, device }) })
         } else {
           debug(`Action type ${action.type} in "${key}" of "${device.name}" is not yet supported. Aborting...`)
         }
@@ -161,6 +145,34 @@ class HomeKit extends Hook {
       return
     }
     this.bridge.addBridgedAccessory(accessory)
+  }
+
+  setAccessory({ value, callback, action }) {
+    debug(`Setting ${value} on ${action}`)
+    const myPromise = action.execute(value)
+    if (myPromise) {
+      myPromise.then(() => {
+        callback(null, true)
+      }).catch((error) => {
+        callback(null, false)
+      })
+    }
+  }
+
+  getAccessoryStatus({ action, callback, device }) {
+    const myPromise = action.status()
+    if (myPromise) {
+      myPromise.then((status) => {
+        if (typeof status === 'object') {
+          status = status.success
+        }
+        debug(`Action: ${action.name}`, status)
+        callback(null, status)
+      }).catch((error) => {
+        debug(`Error getting status of device ${device.name}`, error)
+        callback(null, false)
+      })
+    }
   }
 
   // ----------------------------

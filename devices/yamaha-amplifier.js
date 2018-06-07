@@ -18,11 +18,18 @@ class YamahaAmplifier extends Device {
         status: this.getPowerState.bind(this),
         type: Action.types.switch
       }),
-      hdmi1: new Action({
-        desc: 'Change input of amplifier to HDMI 1',
-        execute: this.setInputHDMI1.bind(this),
-        status: this.isInputHDMI1.bind(this),
-      }),
+      // volume: new Action({
+      //   desc: 'Change volume of amplifier',
+      //   execute: this.volume.bind(this),
+      //   status: this.getVolumeState.bind(this),
+      //   type: Action.types.volume
+      // }),
+      // hdmi1: new Action({
+      //   desc: 'Change input of amplifier to HDMI 1',
+      //   execute: this.setInputHDMI1.bind(this),
+      //   status: this.isInputHDMI1.bind(this),
+      //   type: Action.types.switch
+      // }),
       input: new Action({
         desc: 'Change input of amplifier',
         execute: this.input.bind(this),
@@ -35,6 +42,7 @@ class YamahaAmplifier extends Device {
   // ACTIONS ----------------
   // ------------------------
   power(on) {
+    debug('Power', on)
     if (on) {
       return this.receiver.powerOn()
     } else {
@@ -43,6 +51,7 @@ class YamahaAmplifier extends Device {
   }
 
   volume(level) {
+    debug('Volume', level)
     return new Promise((resolve, reject) => {
       this.receiver.setVolumeTo(level)
         .then(resolve)
@@ -50,6 +59,7 @@ class YamahaAmplifier extends Device {
   }
 
   mute(on) {
+    debug('Mute', on)
     if (on) {
       return this.receiver.muteOn()
     } else {
@@ -58,6 +68,7 @@ class YamahaAmplifier extends Device {
   }
 
   input(input) {
+    debug('Input', input)
     return this.receiver.setMainInputTo(input)
   }
 
@@ -79,6 +90,15 @@ class YamahaAmplifier extends Device {
   // ------------------------
   getPowerState() {
     return this.receiver.isOn()
+  }
+
+  getVolumeState() {
+    return new Promise((resolve, reject) => {
+      this.getInfo()
+        .then(info => {
+          resolve(info.volume)
+        })
+    })
   }
 
   getInputState() {

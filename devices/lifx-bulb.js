@@ -129,6 +129,7 @@ class LifxBulb extends Device {
   }
 
   color({ hue, saturation, brightness, kelvin }) {
+    debug(`${this.name} Color: hue ${hue}, saturation ${saturation}, brightness ${brightness}, kelvin ${kelvin}`)
     return new Promise((resolve, reject) => {
       this.getLightState()
         .then(state => {
@@ -143,10 +144,12 @@ class LifxBulb extends Device {
   }
 
   brightness(brightness) {
+    debug(`${this.name} Brightness: ${brightness}`)
     return this.color({ brightness })
   }
 
   hue(hue) {
+    debug(`${this.name} Hue: ${hue}`)
     return this.color({ hue })
   }
 }
