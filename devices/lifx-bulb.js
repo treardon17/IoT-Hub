@@ -8,7 +8,7 @@ class LifxBulb extends Device {
     super({ id, ip, name, type: Device.types.light, parentService })
     this.bulb = bulb
     this.lightState = {}
-    this.defaultTransition = 2000
+    this.defaultTransition = 1000
   }
 
   createActions() {
@@ -25,11 +25,17 @@ class LifxBulb extends Device {
         status: this.getBrightnessState.bind(this),
         type: Action.types.brightness
       }),
-      color: new Action({
-        desc: "Change color of lights",
+      hue: new Action({
+        desc: "Change hue of lights",
         execute: this.hue.bind(this),
         status: this.getColorState.bind(this),
         type: Action.types.hue
+      }),
+      saturation: new Action({
+        desc: "Change saturation of lights",
+        execute: this.saturation.bind(this),
+        status: this.getSaturationState.bind(this),
+        type: Action.types.saturation
       })
     }
   }
@@ -83,6 +89,14 @@ class LifxBulb extends Device {
     return new Promise((resolve, reject) => {
       this.getLightState().then(state => {
         resolve(state.color.hue)
+      })
+    })
+  }
+
+  getSaturationState() {
+    return new Promise((resolve, reject) => {
+      this.getLightState().then(state => {
+        resolve(state.color.saturation)
       })
     })
   }
@@ -153,6 +167,11 @@ class LifxBulb extends Device {
   hue(hue) {
     debug(`${this.name} Hue: ${hue}`)
     return this.color({ hue })
+  }
+
+  saturation(saturation) {
+    debug(`${this.name} Saturation: ${saturation}`)
+    return this.color({ saturation })
   }
 }
 

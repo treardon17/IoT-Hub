@@ -65,7 +65,8 @@ class Action {
 Action.types = {}
 Action.types.switch = 'switch'
 Action.types.hue = 'hue'
-Action.types.brightness = 'brightness',
+Action.types.saturation = 'saturation'
+Action.types.brightness = 'brightness'
 Action.types.mute = 'mute',
 Action.types.volume = 'volume'
 

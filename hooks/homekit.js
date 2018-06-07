@@ -37,6 +37,7 @@ class HomeKit extends Hook {
       [Action.types.switch]: Characteristic.On,
       [Action.types.hue]: Characteristic.Hue,
       [Action.types.brightness]: Characteristic.Brightness,
+      [Action.types.saturation]: Characteristic.Saturation,
       [Action.types.volume]: Characteristic.Volume,
       [Action.types.mute]: Characteristic.Mute,
     }
@@ -132,6 +133,7 @@ class HomeKit extends Hook {
         const characteristic = this.deviceActionMapping[action.type]
         if (characteristic != null) {
           const service = accessory.getService(type)
+          debug(`Adding ${device.name}, of type ${device.type}, with action type: ${action.type}`)
           service
             .getCharacteristic(characteristic)
             .on('set', (value, callback) => { this.setAccessory({ value, callback, action }) })
@@ -166,7 +168,7 @@ class HomeKit extends Hook {
         if (typeof status === 'object') {
           status = status.success
         }
-        debug(`Action: ${action.name}`, status)
+        debug(`Device: "${device.name}", Action: "${action.type}"`, status)
         callback(null, status)
       }).catch((error) => {
         debug(`Error getting status of device ${device.name}`, error)
@@ -183,7 +185,8 @@ class HomeKit extends Hook {
       debug('New devices found:', newDevices.length)
       newDevices.forEach((device) => {
         if (!this.accessoryMap[device.id]) {
-          debug('Adding device to HomeKit', device.name)
+          debug('----')
+          debug('Adding device to HomeKit:', device.name)
           this.addDevice(device)
         }
       })
