@@ -81,7 +81,9 @@ class LifxBulb extends Device {
 
   getColorState() {
     return new Promise((resolve, reject) => {
-      resolve('ffffff')
+      this.getLightState().then(state => {
+        resolve(state.color.hue)
+      })
     })
   }
 
