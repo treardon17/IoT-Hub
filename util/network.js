@@ -13,7 +13,7 @@ class NetworkUtil {
     return this._ip
   }
 
-  get deviceSubnet() {
+  get ipRange() {
     const ip = this.deviceIP
     const ipArray = ip.split('.')
     ipArray.splice(-1,1)
@@ -57,7 +57,7 @@ class NetworkUtil {
         }
       }
       for (let index = 1; index < maxIP + 1; index++) {
-        const ipAddr = `${this.deviceSubnet}.${index}`
+        const ipAddr = `${this.ipRange}.${index}`
         ping.sys.probe(ipAddr, (isAlive) => {
           if (isAlive) {
             ips.push(ipAddr)
