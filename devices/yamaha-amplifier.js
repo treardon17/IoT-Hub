@@ -18,18 +18,6 @@ class YamahaAmplifier extends Device {
         status: this.getPowerState.bind(this),
         type: Action.types.switch
       }),
-      // volume: new Action({
-      //   desc: 'Change volume of amplifier',
-      //   execute: this.volume.bind(this),
-      //   status: this.getVolumeState.bind(this),
-      //   type: Action.types.volume
-      // }),
-      // hdmi1: new Action({
-      //   desc: 'Change input of amplifier to HDMI 1',
-      //   execute: this.setInputHDMI1.bind(this),
-      //   status: this.isInputHDMI1.bind(this),
-      //   type: Action.types.switch
-      // }),
       input: new Action({
         desc: 'Change input of amplifier',
         execute: this.input.bind(this),
@@ -72,19 +60,6 @@ class YamahaAmplifier extends Device {
     return this.receiver.setMainInputTo(input)
   }
 
-  setInputHDMI1() {
-    return this.input('HDMI 1')
-  }
-
-  isInputHDMI1() {
-    return new Promise((resolve, reject) => {
-      this.getInputState()
-        .then(input => {
-          resolve(input === 'HDMI 1')
-        })
-    })
-  }
-
   // ------------------------
   // GETTERS ----------------
   // ------------------------
@@ -94,7 +69,7 @@ class YamahaAmplifier extends Device {
 
   getVolumeState() {
     return new Promise((resolve, reject) => {
-      this.getInfo()
+      this.info()
         .then(info => {
           resolve(info.volume)
         })
@@ -103,36 +78,40 @@ class YamahaAmplifier extends Device {
 
   getInputState() {
     return new Promise((resolve, reject) => {
-      this.getInfo()
+      this.info()
         .then(info => {
           resolve(info.currentInput)
         })
     })
   }
 
-  getInfo() {
+  info() {
     return new Promise((resolve, reject) => {
-      //Get Info
-      this.receiver.getBasicInfo().done((basicInfo) => {
-        const info = {
-          volume: basicInfo.getVolume(),
-          muted: basicInfo.isMuted(),
-          poweredOn: basicInfo.isOn(),
-          poweredOff: basicInfo.isOff(),
-          currentInput: basicInfo.getCurrentInput(),
-          partyModeEnabled: basicInfo.isPartyModeEnabled(),
-          pureDirectEnabled: basicInfo.isPureDirectEnabled(),
-          bass: basicInfo.getBass(),
-          treble: basicInfo.getTreble(),
-          subwooferTrim: basicInfo.getSubwooferTrim(),
-          dialogueLift: basicInfo.getDialogueLift(),
-          dialogueLevel: basicInfo.getDialogueLevel(),
-          YPAOVolumeEnabled: basicInfo.isYPAOVolumeEnabled(),
-          extraBassEnabled: basicInfo.isExtraBassEnabled(),
-          adaptiveDRCEnabled: basicInfo.isAdaptiveDRCEnabled()
-        }
-        resolve(info)
-      })
+      if (this.receiver) {
+        //Get Info
+        this.receiver.getBasicInfo().done((basicInfo) => {
+          const info = {
+            volume: basicInfo.getVolume(),
+            muted: basicInfo.isMuted(),
+            poweredOn: basicInfo.isOn(),
+            poweredOff: basicInfo.isOff(),
+            currentInput: basicInfo.getCurrentInput(),
+            // partyModeEnabled: basicInfo.isPartyModeEnabled(),
+            pureDirectEnabled: basicInfo.isPureDirectEnabled(),
+            bass: basicInfo.getBass(),
+            treble: basicInfo.getTreble(),
+            subwooferTrim: basicInfo.getSubwooferTrim(),
+            dialogueLift: basicInfo.getDialogueLift(),
+            dialogueLevel: basicInfo.getDialogueLevel(),
+            YPAOVolumeEnabled: basicInfo.isYPAOVolumeEnabled(),
+            extraBassEnabled: basicInfo.isExtraBassEnabled(),
+            adaptiveDRCEnabled: basicInfo.isAdaptiveDRCEnabled()
+          }
+          resolve(info)
+        })
+      } else {
+        resolve({})
+      }
     })
   }
 }

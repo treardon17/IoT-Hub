@@ -6,7 +6,7 @@ const Yamaha = require('yamaha-nodejs')
 
 class YamahaService extends Service {
   constructor() {
-    super({ name: 'yamaha', deviceClass: YamahaReceiver })
+    super({ name: 'yamaha', deviceClass: YamahaReceiver, loadDevicesFromFile: false })
   }
 
   discoverDevices() {
@@ -14,7 +14,7 @@ class YamahaService extends Service {
     return new Promise((resolve, reject) => {
       const yamahaAmp = new Yamaha()
       const id = 'amplifier'
-      this.deviceMap[id] = new YamahaReceiver({ id, name: id, receiver: yamahaAmp, parentService: this })
+      this.deviceMap[id] = new this.deviceClass({ id, name: id, receiver: yamahaAmp, parentService: this })
       this.saveDevices()
       this.setShouldUpdateDevices()
       debug('Added Yamaha amplifier')

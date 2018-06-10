@@ -7,7 +7,7 @@ const debug = Util.Log('Service:LifxService')
 class LifxService extends Service {
   constructor() {
     super({ name: 'lifx', deviceClass: LifxBulb, loadDevicesFromFile: false })
-    this.defaultTransition = 2000
+    this.defaultTransition = 1000
   }
 
   // LISTENERS ------------
@@ -24,7 +24,7 @@ class LifxService extends Service {
   onNewLight(light) {
     light.getLabel((error, label) => {
       if (!error) {
-        let bulb = new LifxBulb({ ip: light.address, name: label, bulb: light, parentService: this })
+        let bulb = new this.deviceClass({ ip: light.address, name: label, bulb: light, parentService: this })
         this.deviceMap[bulb.id] = bulb
         this.saveDevices()
         this.setShouldUpdateDevices()
