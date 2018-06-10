@@ -25,6 +25,10 @@ class RokuTV extends Device {
         execute: this.power.bind(this),
         status: this.getPowerState.bind(this),
         type: Action.types.switch
+      }),
+      input: new Action({
+        desc: 'Change the input of the TV',
+        execute: this.input.bind(this)
       })
     }
   }
@@ -82,6 +86,8 @@ class RokuTV extends Device {
           this.powerKey()
             .then(resolve)
             .catch(reject)
+        } else {
+          resolve()
         }
       }).catch(error => {
        debug('error', error)
@@ -92,6 +98,20 @@ class RokuTV extends Device {
             .catch(reject)
         }
       })
+    })
+  }
+
+  input(input) {
+    return new Promise((resolve, reject) => {
+      const powerOn = (input != null && input != false)
+      this.power(powerOn).then(() => {
+        axios.post(`${this.baseURL}/keypress/Input${input}`).then(response => {
+          resolve(response)
+        }).catch(err => {
+          debug('ERROR', err)
+          reject(err)
+        })
+      }).catch(reject)
     })
   }
 
@@ -118,6 +138,17 @@ class RokuTV extends Device {
       })
     })
   }
+
+  // getInputState() {
+  //   console.log('getting input state')
+  //   return new Promise((resolve, reject) => {
+  //     this.info().then(info => {
+  //       console.log(info)
+  //     }).catch((error) => {
+  //       console.log(error)
+  //     })
+  //   })
+  // }
 
   info() {
     return new Promise((resolve, reject) => {

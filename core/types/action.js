@@ -56,7 +56,7 @@ class Action {
           })
       } else {
         debug('Function `status` in Action has invalid type')
-        resolve(null)
+        reject()
       }
     })
   }

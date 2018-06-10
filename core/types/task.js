@@ -148,22 +148,27 @@ class Task extends Action {
       if (!Array.isArray(devices)) {
         myDevices = [devices]
       }
-      // Keep track of how many devices
-      // have the status we're looking for
+      // How many devices have the status we're looking for
       let successCount = 0
-      // Keep track of how many lights we're trying to modify
+      // How many devices we're trying to modify
       let completeCount = 0
+      // How many devices we've skipped
+      let skipCount = 0
       const checkResovle = (device, status) => {
         // If the status is what we're expecting
         // then we're one device closer for the task being true
-        if (status === expectedValue) { successCount += 1 }
+        if (status.success === expectedValue) { successCount += 1 }
+        else if (status.skip) { skipCount += 1 }
         if (completeCount === myDevices.length - 1) {
+          const checkCount = myDevices.length - skipCount
+          const success = (successCount === checkCount)
+          debug(`__${this.name}__${device.name}__Success count: ${successCount}, skip count: ${skipCount}, total checked: ${checkCount}, success: ${success}`)
           // We've looked at all the devices
           // this is the moment of truth
           resolve({
             successCount,
             totalChecked: myDevices.length,
-            success: successCount === myDevices.length
+            success
           })
         }
         completeCount += 1
@@ -174,14 +179,19 @@ class Task extends Action {
         debug(`Checking status of ${action} on ${device.id}`)
         try {
           const deviceActions = device.actions
-          if (deviceActions[action]) {
-            deviceActions[action]
+          const actionToCheck = deviceActions[action]
+          if (actionToCheck) {
+            actionToCheck
               .status()
               .then((status) => {
                 debug(`${device.name} ${action} status: ${status}`)
-                checkResovle(device, status)
+                checkResovle(device, { success: status })
               })
-              .catch(reject)
+              .catch(() => {
+                // if it does not have a status action, then skip it
+                debug(`No "status" function found in ${device.name}. Skipping...`)
+                checkResovle(device, { skip: true })
+              })
           } else {
             throw `${action} not found in ${device.name}'s actions`
           }
@@ -207,7 +217,7 @@ class Task extends Action {
         if (completeCount === instructions.length - 1) {
           let successCount = 0
           statusArray.forEach(item => {
-            debug(`${item.action} success: ${item.status.success}`)
+            debug(`${this.name} -- ${item.action} success: ${item.status.success}`)
             if (item.status.success) { successCount += 1 }
           })
           const success = successCount === statusArray.length
