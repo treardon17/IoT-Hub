@@ -1,18 +1,19 @@
 const Util = require('../../util')
 const debug = Util.Log('Manager:Task')
+const Manager = require('./manager')
 const Task = require('../types/task')
 const TaskDevice = require('../types/task-device')
 
-class TaskManager {
+class TaskManager extends Manager {
   constructor({ application, onReady }) {
-    this.application = application
+    super({ application, name: 'Task', onReady })
+  }
+
+  beforeInit() {
     this.taskMap = {}
     this.tasksDirty = false
     this.taskDeviceMap = {}
     this.taskDevicesDirty = false
-    this.fileName = 'task-manager'
-    this.onReady = onReady
-    this.init()
   }
 
   get tasks() {
@@ -35,19 +36,12 @@ class TaskManager {
   // -----------------------------
   // INIT ------------------------
   // -----------------------------
-  init() {
-    this.initTasks()
-      .then(() => {
-        if (typeof this.onReady === 'function') { this.onReady() }
-      })
-      .catch(() => { debug('Task file does not exist') })
-  }
 
   /**
    * Initializes the tasks from the tasks file
    * creates the taskMap
    */
-  initTasks() {
+  initManager() {
     debug('Initializing tasks')
     return new Promise((resolve, reject) => {
       Util.FileIO.readDataFile({ fileName: this.fileName })

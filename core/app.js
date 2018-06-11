@@ -3,6 +3,7 @@ const debug = Util.Log('App')
 const Device = require('../core/types/device')
 const Config = require('../config')
 const TaskManager = require('../core/managers/task-manager')
+const TriggerManager = require('../core/managers/trigger-manager')
 const _ = require('lodash')
 
 class App {
@@ -11,7 +12,6 @@ class App {
     this.shouldUpdateDevices = false
     this.setupDebounce()
     this.initialize()
-    this.taskManager = new TaskManager({ application: this })
   }
 
   setupDebounce() {
@@ -87,9 +87,16 @@ class App {
   // INITIALIZATION ---------------
   // ------------------------------
   initialize() {
+    // create managers
+    this.taskManager = new TaskManager({ application: this })
+    this.triggerManager = new TriggerManager({ application: this })
+    // initialize
     this.initializeItem('services')
     this.initializeItem('hooks')
-    this.startHooks()
+    this.initializeItem('triggers')
+    // start
+    this.startItem('hooks')
+    this.startItem('triggers')
   }
 
   initializeItem(key) {
@@ -103,23 +110,31 @@ class App {
         if (!this[key][itemName]) {
           // Grab the corresponding classes from the files and create an instance of them
           const ItemDefinition = require(`../${key}/${item.filename}`)
-          const itemInstance = new ItemDefinition({ token: Config.token })
-          // Set the item's parent application so it has access to all the devices
-          itemInstance.application = this
-          this[key][itemName] = itemInstance
-          debug(`Initializing ${key} -- ${item.name}`)
+          if (ItemDefinition) {
+            const itemInstance = new ItemDefinition({ token: Config.token })
+            // Set the item's parent application so it has access to all the devices
+            itemInstance.application = this
+            this[key][itemName] = itemInstance
+            debug(`Initializing ${key} -- ${item.name}`)
+          } else {
+            debug(`No file named "${item.filename}" in the "${key}" directory`)
+          }
         } else {
           debug(`${key} "${itemName}" already exists`)
         }
       })
     }
   }
-
-  startHooks() {
-    Object.keys(this.hooks).forEach(key => {
-      const hook = this.hooks[key]
-      hook.start()
-    })
+  
+  startItem(key) {
+    const item = this[key]
+    if (item) {
+      Object.keys(item).forEach(key => {
+        item[key].start()
+      })
+    } else {
+      debug(`startItem: Could not find "${key}" in app`)
+    }
   }
 }
 
