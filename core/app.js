@@ -93,10 +93,8 @@ class App {
     // initialize
     this.initializeItem('services')
     this.initializeItem('hooks')
-    this.initializeItem('triggers')
     // start
     this.startItem('hooks')
-    this.startItem('triggers')
   }
 
   initializeItem(key) {

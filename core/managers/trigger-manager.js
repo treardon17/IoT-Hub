@@ -17,11 +17,30 @@ class TriggerManager extends Manager {
   initManager() {
     debug('Initializing triggers')
     return new Promise((resolve, reject) => {
+      this.initTriggers().then(() => {
+        this.initTriggerActionsFromConfig()
+      })
+    })
+  }
+
+  initTriggers() {
+    return new Promise((resolve, reject) => {
+      // Read in all of the triggers from the /triggers folder and create
+      // instances of them. Create a map of trigger objects that we can
+      // reference later when we initialize the trigger actions.
+    })
+  }
+
+  initTriggerActionsFromConfig() {
+    return new Promise((resolve, reject) => {
       Util.FileIO.readDataFile({ fileName: this.fileName })
         .then((data) => {
           const { triggers } = data
           if (triggers && Array.isArray(triggers)) {
             triggers.forEach(trigger => {
+              
+              // Generate all the trigger actions here
+
               console.log(trigger)
             })
             resolve()
