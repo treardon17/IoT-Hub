@@ -6,7 +6,7 @@ const stringLength = 22
 Log = (name, message) => {
   return new Promise((resolve, reject) => {
     const date = new Date()
-    const today = `${date.getMonth()}_${date.getDay()}_${date.getFullYear()}`
+    const today = `${date.getMonth() + 1}_${date.getDate()}_${date.getFullYear()}`
     const filePath = path.resolve(__dirname, `../logs`)
     const fileName = `log_${today}.txt`
     const fullPath = `${filePath}/${fileName}`
