@@ -156,6 +156,7 @@ class HomeKit extends Hook {
       myPromise.then(() => {
         callback(null, true)
       }).catch((error) => {
+        debug('Error setting accessory', error)
         callback(null, false)
       })
     }
