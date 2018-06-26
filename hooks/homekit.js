@@ -150,31 +150,39 @@ class HomeKit extends Hook {
   }
 
   setAccessory({ value, callback, action }) {
-    debug(`Setting ${value} on ${action}`)
-    const myPromise = action.execute(value)
-    if (myPromise) {
-      myPromise.then(() => {
-        callback(null, true)
-      }).catch((error) => {
-        debug('Error setting accessory', error)
-        callback(null, false)
-      })
+    try {
+      debug(`Setting ${value} on ${action}`)
+      const myPromise = action.execute(value)
+      if (myPromise) {
+        myPromise.then(() => {
+          callback(null, true)
+        }).catch((error) => {
+          debug('Error setting accessory', error)
+          callback(null, false)
+        })
+      }
+    } catch (error) {
+      debug(`Error setting ${action} to ${value}`, error)
     }
   }
 
   getAccessoryStatus({ action, callback, device }) {
-    const myPromise = action.status()
-    if (myPromise) {
-      myPromise.then((status) => {
-        if (typeof status === 'object') {
-          status = status.success
-        }
-        debug(`Device: "${device.name}", Action: "${action.type}"`, status)
-        callback(null, status)
-      }).catch((error) => {
-        debug(`Error getting status of device ${device.name}`, error)
-        callback(null, false)
-      })
+    try {
+      const myPromise = action.status()
+      if (myPromise) {
+        myPromise.then((status) => {
+          if (typeof status === 'object') {
+            status = status.success
+          }
+          debug(`Device: "${device.name}", Action: "${action.type}"`, status)
+          callback(null, status)
+        }).catch((error) => {
+          debug(`Error getting status of device ${device.name}`, error)
+          callback(null, false)
+        })
+      }
+    } catch (error) {
+      debug(`Error getting ${device.name} accessory status`, error)
     }
   }
 
@@ -182,15 +190,19 @@ class HomeKit extends Hook {
   // LIFECYCLE METHODS ----------
   // ----------------------------
   devicesChanged({ newDevices }) {
-    if (newDevices && newDevices.length > 0) {
-      debug('New devices found:', newDevices.length)
-      newDevices.forEach((device) => {
-        if (!this.accessoryMap[device.id]) {
-          debug('----')
-          debug('Adding device to HomeKit:', device.name)
-          this.addDevice(device)
-        }
-      })
+    try {
+      if (newDevices && newDevices.length > 0) {
+        debug('New devices found:', newDevices.length)
+        newDevices.forEach((device) => {
+          if (!this.accessoryMap[device.id]) {
+            debug('----')
+            debug('Adding device to HomeKit:', device.name)
+            this.addDevice(device)
+          }
+        })
+      }  
+    } catch (error) {
+      debug(`Error adding devices to homekit:`, newDevices)
     }
   }
 }
