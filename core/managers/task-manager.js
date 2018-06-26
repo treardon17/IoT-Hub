@@ -3,6 +3,7 @@ const debug = Util.Log('Manager:Task')
 const Manager = require('./manager')
 const Task = require('../types/task')
 const TaskDevice = require('../types/task-device')
+// const ObjectMap = require('../../helpers/ObjectMap')
 
 class TaskManager extends Manager {
   constructor({ application, onReady }) {
@@ -10,6 +11,8 @@ class TaskManager extends Manager {
   }
 
   beforeInit() {
+    // this.tasks = new ObjectMap()
+    // this.taskDevices = new ObjectMap()
     this.taskMap = {}
     this.tasksDirty = false
     this.taskDeviceMap = {}
