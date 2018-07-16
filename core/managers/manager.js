@@ -15,9 +15,11 @@ class Manager {
 
   init() {
     debug(`${this.name} manager initializing...`)
-    this.initManager().then(() => {
-      if (typeof this.onReady === 'function') { this.onReady() }
-    }).catch(() => { debug(`${this.name} file does not exist`) })
+    return new Promise((resolve, reject) => {
+      this.initManager().then(() => {
+        if (typeof this.onReady === 'function') { this.onReady() }
+      }).catch(() => { debug(`${this.name} file does not exist`) })
+    })
   }
 
   initManager() {

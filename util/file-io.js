@@ -13,6 +13,12 @@ class FileIO {
     })
   }
 
+  fileExists({ filepath }) {
+    return new Promise((resolve) => {
+      resolve(fs.existsSync(filePath))
+    })
+  }
+
   readFile({ filePath }) {
     return new Promise((resolve, reject) => {
       const exists = fs.existsSync(filePath)
@@ -73,19 +79,30 @@ class FileIO {
     })
   }
 
-  readDataFile({ fileName = 'data' }) {
+  readDataFile({ fileName = 'data', createIfNeeded = false }) {
     return new Promise((resolve, reject) => {
       const filePath = path.resolve(__dirname, `../data/${fileName}.json`)
       this.readFile({ filePath })
         .then((data) => {
-          if (isJSON(data)) {
+          if (isJSON(data) || data.trim() === '{}') {
             const dataObj = JSON.parse(data)
             resolve(dataObj)
           } else {
             reject('Invalid JSON in file', filePath)
           }
         })
-        .catch(reject)
+        .catch((error) => {
+          if (createIfNeeded) {
+            const data = {}
+            this.saveToDataFile({ fileName, data })
+              .then(() => {
+                reject(data)
+              })
+              .catch(reject)
+          } else {
+            reject(error)
+          }
+        })
     })
   }
 

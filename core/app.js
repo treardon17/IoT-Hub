@@ -10,6 +10,7 @@ class App {
   constructor() {
     this.services = {}
     this.shouldUpdateDevices = false
+    this.config = Config
     this.setupDebounce()
     this.initialize()
   }
@@ -100,16 +101,16 @@ class App {
   initializeItem(key) {
     // Look through the configuration file for the key specified
     // and then initialize the items in that array if it exists
-    if (Config && Config[key] && Array.isArray(Config[key])) {
+    if (this.config && this.config[key] && Array.isArray(this.config[key])) {
       // Construct the application from those values in the config
       this[key] = {}
-      Config[key].forEach((item) => {
+      this.config[key].forEach((item) => {
         const itemName = item.name.toLowerCase()
         if (!this[key][itemName]) {
           // Grab the corresponding classes from the files and create an instance of them
           const ItemDefinition = require(`../${key}/${item.filename}`)
           if (ItemDefinition) {
-            const itemInstance = new ItemDefinition({ token: Config.token })
+            const itemInstance = new ItemDefinition({ token: this.config.token })
             // Set the item's parent application so it has access to all the devices
             itemInstance.application = this
             this[key][itemName] = itemInstance
