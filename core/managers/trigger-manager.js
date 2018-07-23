@@ -39,6 +39,7 @@ class TriggerManager extends Manager {
           const triggerInstance = new Trigger({ app: this.app })
           this.triggers.map[item.fileName] = triggerInstance
         } catch (error) {
+          debug('Error initializing trigger', error)
           reject(error)
         }
         resolve()

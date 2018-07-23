@@ -137,7 +137,7 @@ class Scanner extends Trigger {
     if (waitTime != null) {
       this.waitMap[id] = {
         waitTime,
-        timeoutID = null
+        timeoutID: null
       }
     }
     if (this.devicesOnNetwork.indexOf(id.toUpperCase()) !== -1) {
