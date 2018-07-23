@@ -8,7 +8,7 @@ const debug = Util.Log('Service')
  * A Service manages all devices of a specific type
  */
 class Service {
-  constructor({ name, deviceClass, loadDevicesFromFile }) {
+  constructor({ app, name, deviceClass, loadDevicesFromFile }) {
     // VALIDATION
     if (!name) { debug('Service must have a "name" attribute!') }
     if (!deviceClass) { debug('Service must have a "deviceClass" attribute!') }
@@ -26,7 +26,7 @@ class Service {
     
     // HELPERS
     this.loadDevicesFromFile = (loadDevicesFromFile != null ? loadDevicesFromFile : true)
-    this.application = null
+    this.app = app
 
     // INITIALIZATION
     this.initDevices()
@@ -138,8 +138,8 @@ class Service {
   // HELPERS ---------------------
   // -----------------------------
   notifyParentOfDeviceChanges() {
-    if (this.application && typeof this.application.onChildDevicesUpdate === 'function') {
-      this.application.onChildDevicesUpdate()
+    if (this.app && typeof this.app.onChildDevicesUpdate === 'function') {
+      this.app.onChildDevicesUpdate()
     }
   }
 

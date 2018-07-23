@@ -5,8 +5,8 @@ const debug = Util.Log('Service:YamahaService')
 const Yamaha = require('yamaha-nodejs')
 
 class YamahaService extends Service {
-  constructor() {
-    super({ name: 'yamaha', deviceClass: YamahaReceiver, loadDevicesFromFile: false })
+  constructor({ app }) {
+    super({ app, name: 'yamaha', deviceClass: YamahaReceiver, loadDevicesFromFile: false })
   }
 
   discoverDevices() {

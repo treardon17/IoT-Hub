@@ -4,8 +4,8 @@ const Util = require('../util')
 const debug = Util.Log('Service:RokuService')
 
 class RokuService extends Service {
-  constructor() {
-    super({ name: 'roku', deviceClass: RokuTV })
+  constructor({ app }) {
+    super({ app, name: 'roku', deviceClass: RokuTV })
   }
 
   discoverDevices() {

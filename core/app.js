@@ -99,6 +99,7 @@ class App {
   }
 
   initializeItem(key) {
+    debug('Initializing', key)
     // Look through the configuration file for the key specified
     // and then initialize the items in that array if it exists
     if (this.config && this.config[key] && Array.isArray(this.config[key])) {

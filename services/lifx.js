@@ -5,8 +5,8 @@ const Util = require('../util')
 const debug = Util.Log('Service:LifxService')
 
 class LifxService extends Service {
-  constructor() {
-    super({ name: 'lifx', deviceClass: LifxBulb, loadDevicesFromFile: false })
+  constructor({ app }) {
+    super({ app, name: 'lifx', deviceClass: LifxBulb, loadDevicesFromFile: false })
     this.defaultTransition = 1000
   }
 
