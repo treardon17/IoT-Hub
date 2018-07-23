@@ -10,6 +10,7 @@ class Scanner extends Trigger {
     this.devicesOnNetwork = []
     this.enterListeners = {}
     this.leaveListeners = {}
+    this.leaveThreshold = {}
     this.onNetworkListeners = {}
     this.offNetworkListeners = {}
     this.scanInterval = 5 * 1000
@@ -31,7 +32,8 @@ class Scanner extends Trigger {
     const leave = Object.keys(this.leaveListeners)
     const onNetwork = Object.keys(this.onNetworkListeners)
     const offNetwork = Object.keys(this.offNetworkListeners)
-    return Util.Array.removeDuplicates([...enter, ...leave, ...onNetwork, ...offNetwork])
+    const array = [...enter, ...leave, ...onNetwork, ...offNetwork]
+    return Util.Array.removeDuplicates({ array: [...enter, ...leave, ...onNetwork, ...offNetwork] })
   }
 
   getNetworkMap() {
@@ -91,10 +93,10 @@ class Scanner extends Trigger {
       debug('Listening to actions ON:', id)
       if (Array.isArray(id)) {
         id.forEach((myID) => {
-          this.onEnter({ id: myID, callback })
+          this.onNetwork({ id: myID, callback })
         })
       } else {
-        this.onEnter({ id, callback })
+        this.onNetwork({ id, callback })
       }
       resolve()
     })
@@ -105,10 +107,10 @@ class Scanner extends Trigger {
       debug('Listening to actions OFF:', id)
       if (Array.isArray(id)) {
         id.forEach((myID) => {
-          this.onLeave({ id: myID, callback })
+          this.offNetwork({ id: myID, callback })
         })
       } else {
-        this.onLeave({ id, callback })
+        this.offNetwork({ id, callback })
       }
       resolve()
     })
@@ -123,14 +125,23 @@ class Scanner extends Trigger {
   }
 
   onNetwork({ callback, id }) {
-    const id = this.addListener({ callback, id, listenContainer: 'onNetworkListeners' })
     if (this.devicesOnNetwork.indexOf(id.toUpperCase()) !== -1) {
       this.deviceOnNetwork({ id })
     }
-    return id
+    return this.addListener({ callback, id, listenContainer: 'onNetworkListeners' })
   }
 
-  offNetwork({ callback, id }) {
+  /**
+   * 
+   * @id string -- the IP/MAC address of the device leaving the network
+   * @callback function -- the function to be called when the device with `id` leaves the network
+   * @threshold number -- the amount of times the device can be disconnected from the network before registering as off the network
+   */
+  offNetwork({ callback, id, threshold }) {
+    this.leaveThreshold.id = {
+      threshold,
+      count: 0
+    }
     return this.addListener({ callback, id, listenContainer: 'offNetworkListeners' })
   }
 
@@ -143,13 +154,31 @@ class Scanner extends Trigger {
 
   // EVENTS
   deviceOnNetwork(event) {
-    const callback = this.onNetworkListeners[event.id]
-    if (typeof callback === 'function') { callback(event) }
+    const { id } = event
+    const callback = this.onNetworkListeners[id]
+    // If there's a threshold set, we reset it here
+    const thresholdObj = this.leaveThreshold[id]
+    if (thresholdObj) {
+      this.thresholdObj.count = 0
+    }
+    const alreadyOnNetwork = this.devicesOnNetwork.indexOf(event.id) === -1
+    const thresholdDevice = this.leaveThreshold[event.id] != null
+    if (typeof callback === 'function' && (!alreadyOnNetwork && thresholdDevice)) { callback(event) }
   }
 
   deviceOffNetwork(event) {
+    const { id } = event
     const callback = this.offNetworkListeners[event.id]
-    if (typeof callback === 'function') { callback(event) }
+    // If there's a threshold object set here, increment the current count
+    const thresholdObj = this.leaveThreshold[id]
+    if (thresholdObj) {
+      this.thresholdObj.count += 1
+    }
+    const meetsThreshold = (!thresholdObj || thresholdObj && thresholdObj.count < thresholdObj.threshold)
+    const alreadyOffNetwork = this.devicesOnNetwork.indexOf(event.id) === -1
+    if (typeof callback === 'function' && meetsThreshold && !alreadyOffNetwork) {
+      callback(event)
+    }
   }
 
   deviceEntered(event) {
