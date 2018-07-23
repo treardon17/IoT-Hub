@@ -73,7 +73,7 @@ class ObjectMap {
     if (prop) {
       const value = obj[prop]
       this.notify('get', prop, value)
-      return obj[prop]
+      return value
     } else {
       this.notify('get', null, obj)
       return obj

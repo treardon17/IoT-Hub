@@ -86,32 +86,29 @@ class Scanner extends Trigger {
     })
   }
 
-  setupTriggerActive({ id, callback, params }) {
-    callback(params)
+  setupTriggerActive({ id, callback }) {
     return new Promise((resolve, reject) => {
       debug('Listening to actions ON:', id)
-      const cb = () => { callback(params) }
       if (Array.isArray(id)) {
         id.forEach((myID) => {
-          this.onEnter({ id: myID, callback: cb })
+          this.onEnter({ id: myID, callback })
         })
       } else {
-        this.onEnter({ id, callback: cb })
+        this.onEnter({ id, callback })
       }
       resolve()
     })
   }
 
-  setupTriggerInactive({ id, callback, params }) {
+  setupTriggerInactive({ id, callback }) {
     return new Promise((resolve, reject) => {
       debug('Listening to actions OFF:', id)
-      const cb = () => { callback(params) }
       if (Array.isArray(id)) {
         id.forEach((myID) => {
-          this.onLeave({ id: myID, callback: cb })
+          this.onLeave({ id: myID, callback })
         })
       } else {
-        this.onLeave({ id, callback: cb })
+        this.onLeave({ id, callback })
       }
       resolve()
     })
