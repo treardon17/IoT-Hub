@@ -179,22 +179,22 @@ class Scanner extends Trigger {
       thresholdObj.count = 0
     }
     // if there's a wait time set
-    const waitObj = this.waitMap[id]
     let waiting = false
-    if (waitObj) {
-      debug(`Device ${event.id} has wait of ${waitObj.waitTime}`)
-      if (waitObj.timeoutID != null) {
+    if (this.waitMap[id]) {
+      debug(`Device ${id} has wait of ${this.waitMap[id].waitTime}; Timeout ID is: ${this.waitMap[id].timeoutID}`)
+      if (this.waitMap[id].timeoutID != null) {
         waiting = true
-        debug(`Device ${event.id} is currently waiting`)
+        debug(`Device ${id} is currently waiting`)
       } else {
-        debug(`Setting wait for ${event.id}`)
-        waitObj.timeoutID = setTimeout(() => {
-          waitObj.timeoutID = null
-        }, waitObj.waitTime)
+        debug(`Setting wait for ${id}, ${this.waitMap[id].waitTime}`)
+        this.waitMap[id].timeoutID = setTimeout(() => {
+          debug(`Wait over for ${id}. Setting to null.`)
+          this.waitMap[id].timeoutID = null
+        }, this.waitMap[id].waitTime)
       }
     }
-    const alreadyOnNetwork = this.devicesOnNetwork.indexOf(event.id) === -1
-    const thresholdDevice = this.thresholdMap[event.id] != null
+    const alreadyOnNetwork = this.devicesOnNetwork.indexOf(id) === -1
+    const thresholdDevice = this.thresholdMap[id] != null
     if (typeof callback === 'function' && (!alreadyOnNetwork && thresholdDevice && !waiting)) { callback(event) }
   }
 
