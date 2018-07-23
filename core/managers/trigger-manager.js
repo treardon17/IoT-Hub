@@ -71,26 +71,30 @@ class TriggerManager extends Manager {
             triggers.forEach(trigger => {
               const { tasks } = trigger
               const triggerInstance = this.triggers.map[trigger.id]
-              tasks.forEach((task) => {
-                // setup the actions for when the trigger is activated
-                if (task.on) {
-                  debug('Setting up trigger active actions')
-                  const callback = (() => this.app.taskManager.taskMap[task.on.action].execute(task.on.params)) || (() => { debug('Could not complete trigger action. Invalid function') })
-                  triggerInstance.setupTriggerActive({
-                    ...task.on.setupParams,
-                    callback
-                  })
-                }
-                // setup the actions for when the trigger is no longer active
-                if (task.off) {
-                  debug('Setting up trigger inactive actions')
-                  const callback = (() => this.app.taskManager.taskMap[task.off.action].execute(task.off.parms)) || (() => { debug('Could not complete trigger action. Invalid function') })
-                  triggerInstance.setupTriggerInactive({
-                    ...task.off.setupParams,
-                    callback
-                  })
-                }
-              })
+              if (triggerInstance) {
+                tasks.forEach((task) => {
+                  // setup the actions for when the trigger is activated
+                  if (task.on) {
+                    debug('Setting up trigger active actions')
+                    const callback = (() => this.app.taskManager.taskMap[task.on.action].execute(task.on.params)) || (() => { debug('Could not complete trigger action. Invalid function') })
+                    triggerInstance.setupTriggerActive({
+                      ...task.on.setupParams,
+                      callback
+                    })
+                  }
+                  // setup the actions for when the trigger is no longer active
+                  if (task.off) {
+                    debug('Setting up trigger inactive actions')
+                    const callback = (() => this.app.taskManager.taskMap[task.off.action].execute(task.off.parms)) || (() => { debug('Could not complete trigger action. Invalid function') })
+                    triggerInstance.setupTriggerInactive({
+                      ...task.off.setupParams,
+                      callback
+                    })
+                  }
+                })
+              } else {
+                debug('Trigger', trigger.id, 'is not specified in the main config file. Add it there.')
+              }
             })
             resolve()
           } else {
