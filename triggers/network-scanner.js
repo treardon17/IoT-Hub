@@ -89,29 +89,29 @@ class Scanner extends Trigger {
     })
   }
 
-  setupTriggerActive({ id, callback }) {
+  setupTriggerActive({ id, callback, waitTime }) {
     return new Promise((resolve, reject) => {
       debug('Listening to actions ON:', id)
       if (Array.isArray(id)) {
         id.forEach((myID) => {
-          this.onNetwork({ id: myID, callback })
+          this.onNetwork({ id: myID, callback, waitTime })
         })
       } else {
-        this.onNetwork({ id, callback })
+        this.onNetwork({ id, callback, waitTime })
       }
       resolve()
     })
   }
 
-  setupTriggerInactive({ id, callback }) {
+  setupTriggerInactive({ id, callback, threshold }) {
     return new Promise((resolve, reject) => {
       debug('Listening to actions OFF:', id)
       if (Array.isArray(id)) {
         id.forEach((myID) => {
-          this.offNetwork({ id: myID, callback })
+          this.offNetwork({ id: myID, callback, threshold })
         })
       } else {
-        this.offNetwork({ id, callback })
+        this.offNetwork({ id, callback, threshold })
       }
       resolve()
     })
@@ -176,15 +176,18 @@ class Scanner extends Trigger {
     // If there's a threshold set, we reset it here
     const thresholdObj = this.thresholdMap[id]
     if (thresholdObj) {
-      this.thresholdObj.count = 0
+      thresholdObj.count = 0
     }
     // if there's a wait time set
     const waitObj = this.waitMap[id]
     let waiting = false
     if (waitObj) {
+      debug(`Device ${event.id} has wait of ${waitObj.waitTime}`)
       if (waitObj.timeoutID != null) {
         waiting = true
+        debug(`Device ${event.id} is currently waiting`)
       } else {
+        debug(`Setting wait for ${event.id}`)
         waitObj.timeoutID = setTimeout(() => {
           waitObj.timeoutID = null
         }, waitObj.waitTime)
@@ -203,7 +206,7 @@ class Scanner extends Trigger {
     if (thresholdObj) {
       thresholdObj.count += 1
     }
-    const meetsThreshold = (!thresholdObj || thresholdObj && thresholdObj.count < thresholdObj.threshold)
+    const meetsThreshold = (!thresholdObj || (thresholdObj && thresholdObj.count < thresholdObj.threshold))
     const alreadyOffNetwork = this.devicesOnNetwork.indexOf(event.id) === -1
     if (typeof callback === 'function' && meetsThreshold && !alreadyOffNetwork) {
       callback(event)
