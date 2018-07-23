@@ -94,10 +94,10 @@ class Scanner extends Trigger {
       debug('Listening to actions ON:', id)
       if (Array.isArray(id)) {
         id.forEach((myID) => {
-          this.onNetwork({ id: myID, callback, waitTime })
+          this.onEnter({ id: myID, callback, waitTime })
         })
       } else {
-        this.onNetwork({ id, callback, waitTime })
+        this.onEnter({ id, callback, waitTime })
       }
       resolve()
     })
@@ -108,21 +108,13 @@ class Scanner extends Trigger {
       debug('Listening to actions OFF:', id)
       if (Array.isArray(id)) {
         id.forEach((myID) => {
-          this.offNetwork({ id: myID, callback, threshold })
+          this.onLeave({ id: myID, callback, threshold })
         })
       } else {
-        this.offNetwork({ id, callback, threshold })
+        this.onLeave({ id, callback, threshold })
       }
       resolve()
     })
-  }
-
-  onEnter({ callback, id }) {
-    return this.addListener({ callback, id, listenContainer: 'enterListeners' })
-  }
-
-  onLeave({ callback, id }) {
-    return this.addListener({ callback, id, listenContainer: 'leaveListeners' })
   }
 
   /**
@@ -133,17 +125,14 @@ class Scanner extends Trigger {
    * ex. The device connects, but the device keeps disconnecting and reconnecting to the network. This is the amount of time that should
    * pass of inactivity before the callback should be called again
    */
-  onNetwork({ callback, id, waitTime }) {
+  onEnter({ callback, id, waitTime }) {
     if (waitTime != null) {
       this.waitMap[id] = {
         waitTime,
         timeoutID: null
       }
     }
-    if (this.devicesOnNetwork.indexOf(id.toUpperCase()) !== -1) {
-      this.deviceOnNetwork({ id })
-    }
-    return this.addListener({ callback, id, listenContainer: 'onNetworkListeners' })
+    return this.addListener({ callback, id, listenContainer: 'enterListeners' })
   }
 
   /**
@@ -152,13 +141,24 @@ class Scanner extends Trigger {
    * @callback function -- the function to be called when the device with `id` leaves the network
    * @threshold number -- the amount of times the device can be disconnected from the network before registering as off the network
    */
-  offNetwork({ callback, id, threshold }) {
+  onLeave({ callback, id, threshold }) {
     if (threshold != null) {
       this.thresholdMap[id] = {
         threshold,
         count: 0
       }
     }
+    return this.addListener({ callback, id, listenContainer: 'leaveListeners' })
+  }
+
+  onNetwork({ callback, id }) {
+    if (this.devicesOnNetwork.indexOf(id.toUpperCase()) !== -1) {
+      this.deviceOnNetwork({ id })
+    }
+    return this.addListener({ callback, id, listenContainer: 'onNetworkListeners' })
+  }
+
+  offNetwork({ callback, id }) {
     return this.addListener({ callback, id, listenContainer: 'offNetworkListeners' })
   }
 
@@ -169,10 +169,31 @@ class Scanner extends Trigger {
     return id
   }
 
+  resetTimer(id) {
+    clearTimeout(this.waitMap[id].timeoutID)
+    this.waitMap[id].timeoutID = setTimeout(() => {
+      debug(`Wait over for ${id}. Setting to null.`)
+      this.waitMap[id].timeoutID = null
+    }, this.waitMap[id].waitTime)
+  }
+
   // EVENTS
   deviceOnNetwork(event) {
     const { id } = event
     const callback = this.onNetworkListeners[id]
+    if (typeof callback === 'function') { callback(event) }
+  }
+
+  deviceOffNetwork(event) {
+    const { id } = event
+    const callback = this.offNetworkListeners[event.id]
+    if (typeof callback === 'function') { callback(event) }
+  }
+
+  deviceEntered(event) {
+    const { id } = event
+    debug('device entered:', id)
+    const callback = this.enterListeners[id]
     // If there's a threshold set, we reset it here
     const thresholdObj = this.thresholdMap[id]
     if (thresholdObj) {
@@ -182,47 +203,36 @@ class Scanner extends Trigger {
     let waiting = false
     if (this.waitMap[id]) {
       debug(`Device ${id} has wait of ${this.waitMap[id].waitTime}; Timeout ID is: ${this.waitMap[id].timeoutID}`)
-      if (this.waitMap[id].timeoutID != null) {
+      if (this.waitMap[id].timeoutID == null) {
         waiting = true
         debug(`Device ${id} is currently waiting`)
-      } else {
-        debug(`Setting wait for ${id}, ${this.waitMap[id].waitTime}`)
-        this.waitMap[id].timeoutID = setTimeout(() => {
-          debug(`Wait over for ${id}. Setting to null.`)
-          this.waitMap[id].timeoutID = null
-        }, this.waitMap[id].waitTime)
       }
+      debug(`Setting wait for ${id}, ${this.waitMap[id].waitTime}`)
+      this.resetTimer(id)
     }
     const alreadyOnNetwork = this.devicesOnNetwork.indexOf(id) === -1
     const thresholdDevice = this.thresholdMap[id] != null
-    if (typeof callback === 'function' && (!alreadyOnNetwork && thresholdDevice && !waiting)) { callback(event) }
+    const approved = (!alreadyOnNetwork && thresholdDevice && !waiting)
+    if (typeof callback === 'function' && approved) {
+      callback(event)
+    }
   }
 
-  deviceOffNetwork(event) {
+  deviceLeft(event) {
     const { id } = event
-    const callback = this.offNetworkListeners[event.id]
+    debug('device left:', id)
+    const callback = this.leaveListeners[id]
     // If there's a threshold object set here, increment the current count
     const thresholdObj = this.thresholdMap[id]
     if (thresholdObj) {
       thresholdObj.count += 1
     }
-    const meetsThreshold = (!thresholdObj || (thresholdObj && thresholdObj.count < thresholdObj.threshold))
+
+    const meetsThreshold = (!thresholdObj || (thresholdObj && thresholdObj.count > thresholdObj.threshold))
     const alreadyOffNetwork = this.devicesOnNetwork.indexOf(event.id) === -1
     if (typeof callback === 'function' && meetsThreshold && !alreadyOffNetwork) {
       callback(event)
     }
-  }
-
-  deviceEntered(event) {
-    debug('device entered:', event.id)
-    const callback = this.enterListeners[event.id]
-    if (typeof callback === 'function') { callback(event) }
-  }
-
-  deviceLeft(event) {
-    debug('device left:', event.id)
-    const callback = this.leaveListeners[event.id]
-    if (typeof callback === 'function') { callback(event) }
   }
 }
 
