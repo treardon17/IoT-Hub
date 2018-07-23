@@ -32,6 +32,7 @@ class TriggerManager extends Manager {
       // instances of them. Create a map of trigger objects that we can
       // reference later when we initialize the trigger actions.
       const { triggers = [] } = this.app.config
+      debug('Initializing triggers', triggers)
       triggers.forEach((item) => {
         try {
           const Trigger = require(`../../triggers/${item.fileName}.js`)
@@ -48,6 +49,7 @@ class TriggerManager extends Manager {
   startTriggers() {
     return new Promise((resolve, reject) => {
       try {
+        debug('Starting triggers', this.triggers.items)
         this.triggers.items.forEach((trigger) => {
           trigger.start()
         })
@@ -60,6 +62,7 @@ class TriggerManager extends Manager {
 
   initTriggerActionsFromConfig() {
     return new Promise((resolve, reject) => {
+      debug(`Initializing triggers from ${this.fileName}`)
       Util.FileIO.readDataFile({ fileName: this.fileName })
         .then((data) => {
           const { triggers } = data

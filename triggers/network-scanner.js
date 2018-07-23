@@ -10,9 +10,10 @@ class Scanner extends Trigger {
     this.devicesOnNetwork = []
     this.enterListeners = {}
     this.leaveListeners = {}
-    this.leaveThreshold = {}
     this.onNetworkListeners = {}
     this.offNetworkListeners = {}
+    this.thresholdMap = {}
+    this.waitMap = {}
     this.scanInterval = 5 * 1000
     this.scanIntervalID = null
   }
@@ -124,7 +125,21 @@ class Scanner extends Trigger {
     return this.addListener({ callback, id, listenContainer: 'leaveListeners' })
   }
 
-  onNetwork({ callback, id }) {
+  /**
+   * 
+   * @id string -- the IP/MAC address of the device leaving the network
+   * @callback function -- the function to be called when the device with `id` leaves the network
+   * @waitAfterFirst number -- time in milliseconds that should go by before callback should be called after the first time
+   * ex. The device connects, but the device keeps disconnecting and reconnecting to the network. This is the amount of time that should
+   * pass of inactivity before the callback should be called again
+   */
+  onNetwork({ callback, id, waitTime }) {
+    if (waitTime != null) {
+      this.waitMap[id] = {
+        waitTime,
+        timeoutID = null
+      }
+    }
     if (this.devicesOnNetwork.indexOf(id.toUpperCase()) !== -1) {
       this.deviceOnNetwork({ id })
     }
@@ -138,9 +153,11 @@ class Scanner extends Trigger {
    * @threshold number -- the amount of times the device can be disconnected from the network before registering as off the network
    */
   offNetwork({ callback, id, threshold }) {
-    this.leaveThreshold.id = {
-      threshold,
-      count: 0
+    if (threshold != null) {
+      this.thresholdMap[id] = {
+        threshold,
+        count: 0
+      }
     }
     return this.addListener({ callback, id, listenContainer: 'offNetworkListeners' })
   }
@@ -157,22 +174,34 @@ class Scanner extends Trigger {
     const { id } = event
     const callback = this.onNetworkListeners[id]
     // If there's a threshold set, we reset it here
-    const thresholdObj = this.leaveThreshold[id]
+    const thresholdObj = this.thresholdMap[id]
     if (thresholdObj) {
       this.thresholdObj.count = 0
     }
+    // if there's a wait time set
+    const waitObj = this.waitMap[id]
+    let waiting = false
+    if (waitObj) {
+      if (waitObj.timeoutID != null) {
+        waiting = true
+      } else {
+        waitObj.timeoutID = setTimeout(() => {
+          waitObj.timeoutID = null
+        }, waitObj.waitTime)
+      }
+    }
     const alreadyOnNetwork = this.devicesOnNetwork.indexOf(event.id) === -1
-    const thresholdDevice = this.leaveThreshold[event.id] != null
-    if (typeof callback === 'function' && (!alreadyOnNetwork && thresholdDevice)) { callback(event) }
+    const thresholdDevice = this.thresholdMap[event.id] != null
+    if (typeof callback === 'function' && (!alreadyOnNetwork && thresholdDevice && !waiting)) { callback(event) }
   }
 
   deviceOffNetwork(event) {
     const { id } = event
     const callback = this.offNetworkListeners[event.id]
     // If there's a threshold object set here, increment the current count
-    const thresholdObj = this.leaveThreshold[id]
+    const thresholdObj = this.thresholdMap[id]
     if (thresholdObj) {
-      this.thresholdObj.count += 1
+      thresholdObj.count += 1
     }
     const meetsThreshold = (!thresholdObj || thresholdObj && thresholdObj.count < thresholdObj.threshold)
     const alreadyOffNetwork = this.devicesOnNetwork.indexOf(event.id) === -1
