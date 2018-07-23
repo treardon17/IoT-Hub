@@ -206,6 +206,10 @@ class Scanner extends Trigger {
     if (thresholdObj) {
       thresholdObj.count += 1
     }
+    if (this.waitMap[id] && this.waitMap[id].timeoutID != null) {
+      clearTimeout(this.waitMap[id].timeoutID)
+      this.waitMap[id].timeoutID = null
+    }
     const meetsThreshold = (!thresholdObj || (thresholdObj && thresholdObj.count < thresholdObj.threshold))
     const alreadyOffNetwork = this.devicesOnNetwork.indexOf(event.id) === -1
     if (typeof callback === 'function' && meetsThreshold && !alreadyOffNetwork) {
