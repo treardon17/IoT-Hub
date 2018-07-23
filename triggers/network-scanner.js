@@ -1,12 +1,12 @@
-const Hook = require('../core/types/hook')
+const Trigger = require('../core/types/trigger')
 const Util = require('../util')
 const debug = Util.Log('Hook:NetworkScanner')
 const Shell = require('shelljs')
 const parser = require('xml2json')
 
-class Scanner extends Hook {
-  constructor() {
-    super()
+class Scanner extends Trigger {
+  constructor({ app }) {
+    super({ app })
     this.devicesOnNetwork = []
     this.enterListeners = {}
     this.leaveListeners = {}
@@ -86,6 +86,37 @@ class Scanner extends Hook {
     })
   }
 
+  setupTriggerActive({ id, callback, params }) {
+    callback(params)
+    return new Promise((resolve, reject) => {
+      debug('Listening to actions ON:', id)
+      const cb = () => { callback(params) }
+      if (Array.isArray(id)) {
+        id.forEach((myID) => {
+          this.onEnter({ id: myID, callback: cb })
+        })
+      } else {
+        this.onEnter({ id, callback: cb })
+      }
+      resolve()
+    })
+  }
+
+  setupTriggerInactive({ id, callback, params }) {
+    return new Promise((resolve, reject) => {
+      debug('Listening to actions OFF:', id)
+      const cb = () => { callback(params) }
+      if (Array.isArray(id)) {
+        id.forEach((myID) => {
+          this.onLeave({ id: myID, callback: cb })
+        })
+      } else {
+        this.onLeave({ id, callback: cb })
+      }
+      resolve()
+    })
+  }
+
   onEnter({ callback, id }) {
     return this.addListener({ callback, id, listenContainer: 'enterListeners' })
   }
@@ -107,7 +138,7 @@ class Scanner extends Hook {
   }
 
   addListener({ callback, id, listenContainer }) {
-    let id = id || Util.ID.guid()
+    id = id || Util.ID.guid()
     id = id.toUpperCase()
     this[listenContainer][id] = callback
     return id

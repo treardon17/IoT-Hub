@@ -7,9 +7,9 @@ const debug = Util.Log('Hook')
  * A Hook is a way of controlling a service
  */
 class Hook {
-  constructor() {
-    this.application = null
-    this.token = null
+  constructor({ token, app }) {
+    this.app = app
+    this.token = token
   }
 
   // ---------------------------

@@ -7,8 +7,8 @@ const debug = Util.Log('Trigger')
  * A Trigger is an automated way to execute a task or action
  */
 class Trigger {
-  constructor() {
-    this.application = null
+  constructor({ app }) {
+    this.app = app
   }
 
   // ---------------------------
@@ -22,6 +22,14 @@ class Trigger {
   }
   devicesChanged() {
     debug('The "devicesChanged" method must be implemented in subclasses of Trigger.')
+  }
+  setupTriggerActive() {
+    debug('The "triggerActive" method must be implemented in subclasses of Trigger.')
+    return new Promise()
+  }
+  setupTriggerInactive() {
+    debug('The "triggerInactive" method must be implemented in subclasses of Trigger.')
+    return new Promise()
   }
   // ---------------------------
   // END IMPLEMENTED BY SUBCLASS

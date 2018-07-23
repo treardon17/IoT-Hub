@@ -10,7 +10,7 @@ class App {
   constructor() {
     this.services = {}
     this.shouldUpdateDevices = false
-    this.config = Config
+    this.config = Object.freeze(Config)
     this.setupDebounce()
     this.initialize()
   }
@@ -89,8 +89,8 @@ class App {
   // ------------------------------
   initialize() {
     // create managers
-    this.taskManager = new TaskManager({ application: this })
-    this.triggerManager = new TriggerManager({ application: this })
+    this.taskManager = new TaskManager({ app: this })
+    this.triggerManager = new TriggerManager({ app: this })
     // initialize
     this.initializeItem('services')
     this.initializeItem('hooks')
@@ -105,21 +105,19 @@ class App {
       // Construct the application from those values in the config
       this[key] = {}
       this.config[key].forEach((item) => {
-        const itemName = item.name.toLowerCase()
-        if (!this[key][itemName]) {
+        const itemID = item.id || item.fileName
+        if (!this[key][itemID]) {
           // Grab the corresponding classes from the files and create an instance of them
-          const ItemDefinition = require(`../${key}/${item.filename}`)
+          const ItemDefinition = require(`../${key}/${item.fileName}`)
           if (ItemDefinition) {
-            const itemInstance = new ItemDefinition({ token: this.config.token })
-            // Set the item's parent application so it has access to all the devices
-            itemInstance.application = this
-            this[key][itemName] = itemInstance
-            debug(`Initializing ${key} -- ${item.name}`)
+            const itemInstance = new ItemDefinition({ token: this.config.token, app: this })
+            this[key][itemID] = itemInstance
+            debug(`Initializing ${key} -- ${item.id}`)
           } else {
-            debug(`No file named "${item.filename}" in the "${key}" directory`)
+            debug(`No file named "${item.fileName}" in the "${key}" directory`)
           }
         } else {
-          debug(`${key} "${itemName}" already exists`)
+          debug(`${key} "${itemID}" already exists`)
         }
       })
     }

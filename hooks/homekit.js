@@ -11,8 +11,8 @@ const Device = require('../core/types/device')
 const Action = require('../core/types/action')
 
 class HomeKit extends Hook {
-  constructor() {
-    super()
+  constructor({ token, app }) {
+    super({ token, app })
     this.username = 'CC:22:3D:E3:CE:F7'
     this.pincode = '031-45-154'
     this.port = 51826

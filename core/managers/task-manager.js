@@ -6,8 +6,8 @@ const TaskDevice = require('../types/task-device')
 // const ObjectMap = require('../../helpers/ObjectMap')
 
 class TaskManager extends Manager {
-  constructor({ application, onReady }) {
-    super({ application, name: 'Task', onReady })
+  constructor({ app, onReady }) {
+    super({ app, name: 'Task', onReady })
   }
 
   beforeInit() {
@@ -82,7 +82,7 @@ class TaskManager extends Manager {
     if (!Array.isArray(instructions)) {
       myInstructions = [instructions]
     }
-    const task = new Task({ id: Util.ID.guid(), name, desc, instructions: myInstructions, application: this.application })
+    const task = new Task({ id: Util.ID.guid(), name, desc, instructions: myInstructions, app: this.app })
     
     if (addAsDevice) {
       debug(`Adding task ${name} of type ${type} as device`)
@@ -96,7 +96,7 @@ class TaskManager extends Manager {
     
     if (save) {
       debug(`Saving task ${name} of type ${type}`)
-      this.application.onChildDevicesUpdate()
+      this.app.onChildDevicesUpdate()
       return new Promise((resolve, reject) => {
         this.saveTasks()
           .then(() => { resolve(task) })

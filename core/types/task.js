@@ -9,13 +9,13 @@ const debug = Util.Log('Task')
  * A Task is a series of actions to be executed
  */
 class Task extends Action {
-  constructor({ id, name, desc, type, instructions, application }) {
+  constructor({ id, name, desc, type, instructions, app }) {
     super({ desc, type: type || Action.types.switch })
     if (!id) { debug('Task must have an ID') }
     this.id = id
     this.name = name
     this.instructions = []
-    this.application = application
+    this.app = app
 
     this.addInstructions({ instructions })
   }
@@ -109,7 +109,7 @@ class Task extends Action {
         let { devices } = instruction
         debug('Instruction', service, action, params)
         if (!devices && service) {
-          devices = this.application.getDevicesOfService(service)
+          devices = this.app.getDevicesOfService(service)
         }
         // let myParams = params
         // if (value != null && params == null) {
@@ -236,7 +236,7 @@ class Task extends Action {
         const { service, action, params } = instruction
         let { devices } = instruction
         if (!devices && service) {
-          devices = this.application.getDevicesOfService(service)
+          devices = this.app.getDevicesOfService(service)
         }
         this.checkStatus({ devices, action, expectedValue: params })
           .then((status) => {

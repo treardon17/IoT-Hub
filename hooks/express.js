@@ -5,20 +5,15 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 class Express extends Hook {
-  constructor({ token = null }) {
-    super()
-    this.token = token
-  }
-
   start() {
     this.port = 8080
-    this.app = express()
+    this.expressApp = express()
     this.router = null
-    this.app.use(bodyParser.json())
-    this.app.use(bodyParser.urlencoded({ extended: true }))
-    this.app.use(this.handleRoute.bind(this))
+    this.expressApp.use(bodyParser.json())
+    this.expressApp.use(bodyParser.urlencoded({ extended: true }))
+    this.expressApp.use(this.handleRoute.bind(this))
     this.setupRoutes()
-    this.app.listen(this.port)
+    this.expressApp.listen(this.port)
     debug('Express listening on port', this.port)
   }
 
@@ -30,7 +25,7 @@ class Express extends Hook {
 
   setupRoutes() {
     this.router = express.Router()
-    const { services } = this.application
+    const { services } = this.app
     const serviceKeys = Object.keys(services)
 
     // Service specific routes
@@ -67,10 +62,10 @@ class Express extends Hook {
       return
     }
 
-    const devices = device || this.application.getDevicesOfService(service)
+    const devices = device || this.app.getDevicesOfService(service)
 
     if (devices.length > 0) {
-      const task = this.application.taskManager.createTask({
+      const task = this.app.taskManager.createTask({
         instructions: [{ action, params: value, devices }]
       })
       task.execute()
@@ -90,7 +85,7 @@ class Express extends Hook {
     const { task } = req.params
     const { token, value } = req.body
     debug('Task post request received:', `task "${task}"`)
-    const theTask = this.application.taskManager.taskMap[task]
+    const theTask = this.app.taskManager.taskMap[task]
     if (theTask && typeof theTask.execute === 'function') {
       theTask.execute(value)
         .then(() => {

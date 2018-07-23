@@ -2,8 +2,8 @@ const Util = require('../../util')
 const debug = Util.Log('Manager')
 
 class Manager {
-  constructor({ application, name, onReady }) {
-    this.application = application
+  constructor({ app, name, onReady }) {
+    this.app = app
     this.name = (name || '').toLowerCase()
     this.fileName = `manager-${this.name}`
     this.onReady = onReady
