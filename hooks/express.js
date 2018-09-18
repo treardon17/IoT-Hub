@@ -53,7 +53,7 @@ class Express extends Hook {
   onServicePost({ req, res, next }) {
     const { service, device, action } = req.params
     const { token, value } = req.body
-    debug('Service post request received:', `service "${service}", device "${device || 'all'}", action "${action}"`)
+    debug('Service post request received:', `service "${service}", device "${device || 'all'}", action "${action}"`, 'value is:', value)
 
     // Security -- ensure token is correct before performing task
     const tokenValidation = this.validateToken(token)

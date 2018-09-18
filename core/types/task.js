@@ -115,7 +115,12 @@ class Task extends Action {
         // if (value != null && params == null) {
         //   myParams = value
         // }
-        const myParams = value ? params : !params
+        let myParams
+        if (value != null) {
+          myParams = value ? params : !params
+        } else {
+          myParams = params
+        }
 
         // Add the functions to the performers array
         const perform = () => {
