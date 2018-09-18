@@ -84,7 +84,7 @@ class Task extends Action {
     })
   }
 
-  execute(value, serialize = true) {
+  execute(value, serialize = false) {
     debug(`Performing execute on task: ${this.name}. Serialized: ${serialize}`)
     return new Promise((resolve, reject) => {
       const { instructions } = this
