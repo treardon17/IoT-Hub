@@ -169,6 +169,11 @@ class HomeKit extends Hook {
   getAccessoryStatus({ action, callback, device }) {
     try {
       const myPromise = action.status()
+      // set a timeout of 10 seconds so 
+      // the devices don't wait forever
+      const timeout = setTimeout(() => {
+        callback(null, false)
+      }, 10 * 1000)
       if (myPromise) {
         myPromise.then((status) => {
           if (typeof status === 'object') {
@@ -179,6 +184,8 @@ class HomeKit extends Hook {
         }).catch((error) => {
           debug(`Error getting status of device ${device.name}`, error)
           callback(null, false)
+        }).finally(() => {
+          clearTimeout(timeout)
         })
       }
     } catch (error) {
