@@ -3,17 +3,27 @@ const debug = Util.Log('Hook:Express')
 const Hook = require('../core/types/hook')
 const express = require('express')
 const bodyParser = require('body-parser')
+const fs = require('fs')
+const https = require('https')
+
+// credentials
+const path = require('path')
+const privateKey = fs.readFileSync(path.resolve(__dirname, '../ssl/express.key'), 'utf8')
+const certificate = fs.readFileSync(path.resolve(__dirname, '../ssl/express.crt'), 'utf8')
+const credentials = { key: privateKey, cert: certificate }
 
 class Express extends Hook {
   start() {
-    this.port = 8080
+    this.port = 8443
     this.expressApp = express()
     this.router = null
     this.expressApp.use(bodyParser.json())
     this.expressApp.use(bodyParser.urlencoded({ extended: true }))
     this.expressApp.use(this.handleRoute.bind(this))
     this.setupRoutes()
-    this.expressApp.listen(this.port)
+    this.httpsServer = https.createServer(credentials, this.expressApp)
+    this.httpsServer.listen(this.port)
+    // this.expressApp.listen(this.port)
     debug('Express listening on port', this.port)
   }
 
@@ -51,6 +61,7 @@ class Express extends Hook {
   }
 
   onServicePost({ req, res, next }) {
+    req.connection.setTimeout(100000)
     const { service, device, action } = req.params
     const { token, value } = req.body
     debug('Service post request received:', `service "${service}", device "${device || 'all'}", action "${action}"`, 'value is:', value)
@@ -82,6 +93,7 @@ class Express extends Hook {
   }
 
   onTaskPost({ req, res, next }) {
+    req.connection.setTimeout(100000)
     const { task } = req.params
     const { token, value } = req.body
     debug('Task post request received:', `task "${task}"`)
@@ -98,6 +110,7 @@ class Express extends Hook {
   }
 
   onGet({ req, res, next }) {
+    req.connection.setTimeout(100000)
     const { service, device, action } = req.params
   }
 
