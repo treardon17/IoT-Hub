@@ -171,21 +171,21 @@ class HomeKit extends Hook {
       const myPromise = action.status()
       // set a timeout of 10 seconds so 
       // the devices don't wait forever
-      const timeout = setTimeout(() => {
-        debug(`Device timeout: "${device.name}", Action: "${action.type}"`)
-        callback(null, false)
-      }, 10 * 1000)
+      // const timeout = setTimeout(() => {
+      //   debug(`Device timeout: "${device.name}", Action: "${action.type}"`)
+      //   callback(null, false)
+      // }, 10 * 1000)
       if (myPromise) {
         myPromise.then((status) => {
           if (typeof status === 'object') {
             status = status.success
           }
           debug(`Device: "${device.name}", Action: "${action.type}"`, status)
-          clearTimeout(timeout)
+          // clearTimeout(timeout)
           callback(null, status)
         }).catch((error) => {
           debug(`Error getting status of device ${device.name}`, error)
-          clearTimeout(timeout)
+          // clearTimeout(timeout)
           callback(null, false)
         })
       }

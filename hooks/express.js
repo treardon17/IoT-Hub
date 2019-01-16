@@ -38,6 +38,9 @@ class Express extends Hook {
     const { services } = this.app
     const serviceKeys = Object.keys(services)
 
+    const onTaskPost = (req, res, next) => { this.onTaskPost({ req, res, next }) }
+    this.router.post(`/task/:task`, onTaskPost)
+
     // Service specific routes
     const onServicePost = (req, res, next) => { this.onServicePost({ req, res, next }) }
     const onGet = (req, res, next) => { this.onGet({ req, res, next }) }
